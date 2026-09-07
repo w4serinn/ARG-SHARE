@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ARG 調査記録</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Shippori+Mincho+B1:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Shippori+Mincho+B1:wght@400;600&display=swap" rel="stylesheet">
 <style>
   :root {
     --felt: #2B3A33;          /* 机上のフェルト */
@@ -20,7 +20,7 @@
     --pin: #C33A2E;
     --ok: #3A6B4F;
     --sans: "Shippori Mincho B1", "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif;
-    --type: "Special Elite", "Courier Prime", "Courier New", monospace;
+    --type: "Courier Prime", "Courier New", "Osaka-Mono", monospace;
   }
   * { box-sizing: border-box; }
   html, body { margin: 0; padding: 0; }
@@ -41,7 +41,7 @@
   .wrap { max-width: 1080px; margin: 0 auto; padding: 36px 20px 96px; }
 
   header { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 28px; color: var(--manila); }
-  .casefile { font-family: var(--type); font-size: 13px; letter-spacing: .12em; opacity: .75; }
+  .casefile { font-family: var(--type); font-weight: 700; font-size: 13px; letter-spacing: .12em; opacity: .85; }
   h1 { font-size: 30px; font-weight: 600; margin: 2px 0 0; letter-spacing: .06em; }
   h1 mark { background: none; color: inherit; border-bottom: 2px solid var(--thread); padding-bottom: 2px; }
   .sub { color: var(--manila-deep); font-size: 14px; margin: 6px 0 0; opacity: .85; }
@@ -73,7 +73,7 @@
     background: var(--manila); border: 1px solid var(--manila-line); border-bottom: none;
     border-radius: 4px 4px 0 0;
   }
-  .card h2 { font-family: var(--type); font-size: 15px; letter-spacing: .1em; font-weight: 400; margin: 0 0 16px; color: var(--ink-soft); }
+  .card h2 { font-family: var(--type); font-size: 15px; letter-spacing: .1em; font-weight: 700; margin: 0 0 16px; color: var(--ink-soft); }
   .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px 18px; }
   .grid .full { grid-column: 1 / -1; }
   label { display: block; font-size: 13px; color: var(--ink-soft); margin-bottom: 3px; }
@@ -150,7 +150,7 @@
 
   /* スタンプ */
   .stamp {
-    display: inline-block; font-family: var(--type); font-size: 11px; letter-spacing: .14em;
+    display: inline-block; font-family: var(--type); font-weight: 700; font-size: 11px; letter-spacing: .14em;
     border: 1.5px solid currentColor; border-radius: 3px; padding: 0 6px; line-height: 1.5;
     transform: rotate(-4deg); opacity: .8;
   }
@@ -198,6 +198,82 @@
   .conn { font-family: var(--type); font-size: 12px; letter-spacing: .08em; color: var(--manila-deep); opacity: .85; }
   .conn.off { color: #E2A59E; }
   [hidden] { display: none !important; }
+
+  /* ---------- タブ ---------- */
+  .tabs { display: flex; gap: 4px; margin: 4px 0 18px; border-bottom: 1px solid var(--manila-line); }
+  .tab {
+    font-family: var(--type); font-size: 13px; letter-spacing: .1em; color: var(--manila-deep);
+    background: transparent; border: 1px solid transparent; border-bottom: none; border-radius: 3px 3px 0 0;
+    padding: 6px 16px; cursor: pointer; opacity: .7;
+  }
+  .tab:hover { opacity: 1; }
+  .tab.active { background: var(--manila); color: var(--ink); border-color: var(--manila-line); opacity: 1; }
+  .tab .n { margin-left: 6px; color: var(--thread); }
+
+  /* ---------- 重複警告 ---------- */
+  .dup { display: none; margin-top: 6px; padding: 6px 10px; font-size: 13px; color: var(--stamp); border: 1px dashed var(--stamp); border-radius: 2px; background: rgba(168,50,42,.06); }
+  .dup.show { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .dup .btn { margin-left: auto; }
+  .hop.flash { animation: flash 1.6s ease-out; }
+  @keyframes flash { 0%, 40% { background: rgba(178,56,46,.18); } 100% { background: transparent; } }
+
+  /* ---------- メモ（付箋） ---------- */
+  .notes-bar { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; color: var(--manila-deep); font-size: 13px; }
+  .notes-bar .btn { margin-left: auto; }
+  .notes { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 18px; align-items: start; list-style: none; padding: 0; margin: 0; }
+  .note {
+    position: relative; background: #F3E7C3; border: 1px solid var(--manila-line); border-radius: 2px;
+    padding: 22px 14px 10px; box-shadow: 0 6px 14px rgba(0,0,0,.3);
+  }
+  .note::before { content: ""; position: absolute; top: -7px; left: 50%; width: 12px; height: 12px; margin-left: -6px; border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #E2665A, var(--pin) 60%, #7E1F17); box-shadow: 0 2px 3px rgba(0,0,0,.4); }
+  .note textarea {
+    display: block; width: 100%; min-height: 112px; border: none; background: transparent; resize: none; padding: 0;
+    overflow: hidden; font-size: 14px; line-height: 28px;
+    background-image: repeating-linear-gradient(transparent 0 27px, rgba(42,36,32,.12) 27px 28px);
+  }
+  .note textarea:focus { outline: none; }
+  .note-meta { display: flex; gap: 10px; align-items: center; margin-top: 8px; font-family: var(--type); font-size: 11px; color: var(--ink-soft); flex-wrap: wrap; }
+  .note-meta .actions { margin-left: auto; font-family: var(--sans); }
+  .note-meta .remote { color: var(--thread); }
+  .note-meta .saving { color: var(--ok); }
+  @media (prefers-reduced-motion: reduce) { .hop.flash { animation: none; } }
+
+  /* ---------- 付箋: 並べ替え / 済み ---------- */
+  .note .grip { position: absolute; top: 4px; left: 8px; font-size: 16px; color: var(--ink-soft); cursor: grab; touch-action: none; user-select: none; padding: 2px 4px; line-height: 1; }
+  .note .grip:active { cursor: grabbing; }
+  .note.dragging { opacity: .35; }
+  .note.drop-before { box-shadow: -4px 0 0 var(--thread), 0 6px 14px rgba(0,0,0,.3); }
+  .note.drop-after { box-shadow: 4px 0 0 var(--thread), 0 6px 14px rgba(0,0,0,.3); }
+  .note.done { opacity: .6; background: var(--manila-deep); }
+  .note.done textarea { min-height: 28px; height: 28px !important; text-decoration: line-through; }
+  .note.done.open textarea { min-height: 112px; height: auto !important; text-decoration: none; }
+  .note.done .grip { display: none; }
+  .done-bar { margin: 26px 0 12px; display: flex; align-items: center; gap: 12px; color: var(--manila-deep); font-family: var(--type); font-size: 12px; letter-spacing: .08em; }
+  .done-bar::after { content: ""; flex: 1; border-top: 1px dashed var(--manila-line); }
+
+  /* ---------- パスワード帳 ---------- */
+  .keys { list-style: none; margin: 0; padding: 0; }
+  .key {
+    position: relative; background: var(--manila); border: 1px solid var(--manila-line); border-radius: 2px;
+    padding: 14px 18px 12px 18px; margin-bottom: 12px; box-shadow: 0 6px 14px rgba(0,0,0,.3);
+  }
+  .key .row { display: grid; grid-template-columns: minmax(180px, 1fr) 1.2fr 1.2fr; gap: 14px; align-items: start; }
+  .key .pw { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .key .pw code {
+    font-family: var(--type); font-weight: 700; font-size: 15px; background: #F7EFD9; border: 1px solid var(--ink-soft);
+    padding: 2px 10px; border-radius: 2px; overflow-wrap: anywhere;
+  }
+  .key .how { white-space: pre-wrap; font-size: 14px; }
+  .key.dim { opacity: .4; }
+  @media (max-width: 720px) { .key .row { grid-template-columns: 1fr; gap: 8px; } }
+
+  /* ---------- テキスト内リンク ---------- */
+  .memo a, .how a, .note .links a { color: var(--ink); text-decoration: underline; text-decoration-color: var(--thread); overflow-wrap: anywhere; }
+  .note .links { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+  .note .links:empty { display: none; }
+  .note .links a { font-family: var(--type); font-size: 11px; background: #F7EFD9; border: 1px solid var(--manila-line); padding: 1px 8px; border-radius: 2px; text-decoration: none; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .note .links a:hover { border-color: var(--thread); }
 </style>
 </head>
 <body>
@@ -245,6 +321,13 @@
 
   <!-- ===== 本体 ===== -->
   <div id="desk" hidden>
+  <div class="tabs">
+    <button class="tab active" data-tab="records" type="button">RECORDS — 記録<span class="n" id="tabRecN"></span></button>
+    <button class="tab" data-tab="notes" type="button">NOTES — メモ<span class="n" id="tabNoteN"></span></button>
+    <button class="tab" data-tab="keys" type="button">PASSWORDS — 鍵束<span class="n" id="tabKeyN"></span></button>
+  </div>
+
+  <div id="tabRecords">
   <section class="card" id="formCard">
     <h2 id="formTitle">NEW RECORD — 記録を追加</h2>
     <div class="grid">
@@ -256,6 +339,7 @@
       <div class="full">
         <label for="keyword">検索ワード</label>
         <input type="text" id="keyword" class="kw" placeholder="実際に検索した文字列をそのまま">
+        <div class="dup" id="dup"></div>
       </div>
       <div>
         <label for="sourceText">出典（どこで見つけたか）</label>
@@ -311,6 +395,63 @@
     最初に検索した言葉と、その出どころを上の書類から記録してください。
   </div>
   </div>
+
+  <div id="tabNotes" hidden>
+    <div class="notes-bar">
+      <span>思いついたこと、未確認の手がかり、役割分担など、何でも。付箋ごとに別々に保存されるので、同時に書いてもぶつかりません。本文の URL は Ctrl（⌘）+クリックで開けます。</span>
+      <button class="btn" id="btnAddNote">付箋を足す</button>
+    </div>
+    <ul class="notes" id="notes"></ul>
+    <div class="empty" id="notesEmpty" hidden><strong>まだ付箋がありません。</strong></div>
+    <div class="done-bar" id="doneBar" hidden>
+      <span id="doneLabel"></span>
+      <button class="btn small" id="btnToggleDone" type="button">表示する</button>
+    </div>
+    <ul class="notes" id="notesDone" hidden></ul>
+  </div>
+
+  <div id="tabKeys" hidden>
+    <section class="card">
+      <h2 id="keyFormTitle">NEW KEY — パスワードを記録</h2>
+      <div class="grid">
+        <div>
+          <label for="kPw">パスワード</label>
+          <input type="text" id="kPw" class="kw" autocomplete="off" placeholder="大文字小文字もそのまま">
+        </div>
+        <div>
+          <label for="kStatus">状態</label>
+          <select id="kStatus">
+            <option value="ok">通った</option>
+            <option value="try">未確認</option>
+            <option value="ng">弾かれた</option>
+          </select>
+        </div>
+        <div>
+          <label for="kTarget">使う場所（ページ名や入力欄）</label>
+          <input type="text" id="kTarget" placeholder="例: 地下室の扉のフォーム">
+        </div>
+        <div>
+          <label for="kTargetUrl">使う場所のURL</label>
+          <input type="url" id="kTargetUrl" placeholder="https://">
+        </div>
+        <div class="full">
+          <label for="kHow">どうやって手に入れたか</label>
+          <textarea id="kHow" placeholder="例: 動画 #5 の字幕の頭文字。ヒントは掲示板の『時計を見ろ』"></textarea>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button class="btn ghost" id="btnKeyCancel" hidden>編集をやめる</button>
+        <button class="btn primary" id="btnKeySave">記録する</button>
+      </div>
+    </section>
+    <div class="filters">
+      <input type="text" id="kq" placeholder="鍵束を探す">
+      <span class="count" id="kCount"></span>
+    </div>
+    <ul class="keys" id="keys"></ul>
+    <div class="empty" id="keysEmpty" hidden><strong>まだ鍵がありません。</strong><br>見つけたパスワードと、その入手経路を上の書類から記録してください。</div>
+  </div>
+  </div>
 </div>
 <div class="toast" id="toast"></div>
 
@@ -345,14 +486,21 @@ const els = {
   hitTitle: $('hitTitle'), hitUrl: $('hitUrl'), memo: $('memo'),
   save: $('btnSave'), cancel: $('btnCancel'), formTitle: $('formTitle'),
   q: $('q'), fStatus: $('fStatus'),
-  trail: $('trail'), empty: $('empty'), count: $('count'), toast: $('toast'), sourceList: $('sourceList')
+  trail: $('trail'), empty: $('empty'), count: $('count'), toast: $('toast'), sourceList: $('sourceList'),
+  kPw: $('kPw'), kStatus: $('kStatus'), kTarget: $('kTarget'), kTargetUrl: $('kTargetUrl'), kHow: $('kHow'),
+  keySave: $('btnKeySave'), keyCancel: $('btnKeyCancel'), keyFormTitle: $('keyFormTitle'), kq: $('kq'), keys: $('keys'), keysEmpty: $('keysEmpty'), kCount: $('kCount'), tabKeyN: $('tabKeyN'),
+  dup: $('dup'), notes: $('notes'), notesDone: $('notesDone'), notesEmpty: $('notesEmpty'), doneBar: $('doneBar'), doneLabel: $('doneLabel'), tabRecN: $('tabRecN'), tabNoteN: $('tabNoteN')
 };
 
 let app, auth, db;
 let caseId = null, caseName = '', nickname = '';
 let entries = [];
 let editingId = null;
-let unsubscribe = null;
+let unsubscribe = null, unsubNotes = null;
+let notes = [];
+let keys = [], editingKeyId = null, unsubKeys = null;
+const noteState = new Map(); // id -> { dirty, timer }
+let showDone = false, reorderPending = false;
 
 // ---------- ユーティリティ ----------
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -370,6 +518,16 @@ async function sha256(text) {
   const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text.normalize('NFKC')));
   return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
 }
+const URL_RE = /https?:\/\/[^\s<>"'）」』]+/g;
+function linkify(text) {
+  return esc(text).replace(URL_RE, u => `<a href="${u}" target="_blank" rel="noopener">${u}</a>`);
+}
+function urlAt(text, pos) {
+  for (const m of text.matchAll(URL_RE)) {
+    if (pos >= m.index && pos <= m.index + m[0].length) return m[0];
+  }
+  return null;
+}
 function linkOrText(text, url) {
   if (!text && !url) return `<div class="val empty-val">未記入</div>`;
   const label = esc(text || url);
@@ -378,6 +536,10 @@ function linkOrText(text, url) {
   return `<div class="val">${main}</div>${sub}`;
 }
 const entriesRef = () => collection(db, 'cases', caseId, 'entries');
+const notesRef = () => collection(db, 'cases', caseId, 'notes');
+const keysRef = () => collection(db, 'cases', caseId, 'keys');
+const KEY_STATUS = { ok: '通った', try: '未確認', ng: '弾かれた' };
+const norm = v => String(v || '').normalize('NFKC').trim().toLowerCase();
 
 // ---------- 接続と入口 ----------
 function ensureFirebase() {
@@ -429,11 +591,26 @@ function enterDesk() {
     els.conn.textContent = '接続エラー'; els.conn.classList.add('off');
     toast('読み込めません: ' + (err.code || err.message));
   });
-  resetForm();
+  if (unsubNotes) unsubNotes();
+  unsubNotes = onSnapshot(notesRef(), snap => {
+    notes = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+      .sort((a, b) => (a.createdAt || '').localeCompare(b.createdAt || ''));
+    renderNotes();
+  }, err => { console.error(err); toast('メモを読み込めません: ' + (err.code || err.message)); });
+  if (unsubKeys) unsubKeys();
+  unsubKeys = onSnapshot(keysRef(), snap => {
+    keys = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+      .sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
+    renderKeys();
+  }, err => { console.error(err); toast('鍵束を読み込めません: ' + (err.code || err.message)); });
+  resetForm(); resetKeyForm();
   els.keyword.focus();
 }
 function leave() {
+  if (unsubKeys) unsubKeys(); unsubKeys = null; keys = []; els.keys.innerHTML = '';
   if (unsubscribe) unsubscribe(); unsubscribe = null;
+  if (unsubNotes) unsubNotes(); unsubNotes = null;
+  notes = []; noteState.clear(); els.notes.innerHTML = '';
   localStorage.removeItem(LS_KEY);
   entries = []; caseId = null; editingId = null;
   els.gate.hidden = false; els.desk.hidden = true; els.tools.hidden = true;
@@ -473,6 +650,7 @@ function fillForm(e) {
   els.sourceText.value = e.sourceText || ''; els.sourceUrl.value = e.sourceUrl || '';
   els.hitTitle.value = e.hitTitle || ''; els.hitUrl.value = e.hitUrl || '';
   els.memo.value = e.memo || '';
+  checkDup();
 }
 function resetForm() {
   renderParentOptions(null);
@@ -482,9 +660,30 @@ function resetForm() {
   els.save.textContent = '追加する';
   els.cancel.hidden = true;
 }
+function duplicatesOf(kw) {
+  const k = norm(kw); if (!k) return [];
+  return entries.filter(e => e.id !== editingId && norm(e.keyword) === k)
+    .sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
+}
+function checkDup() {
+  const dups = duplicatesOf(els.keyword.value);
+  els.dup.classList.toggle('show', dups.length > 0);
+  if (!dups.length) { els.dup.innerHTML = ''; return; }
+  const d = dups[0];
+  els.dup.innerHTML = `⚠ 同じワードの記録が ${dups.length} 件あります: ${esc(d.author || '名無し')} が ${fmtDate(d.createdAt)} に記録（${STATUS_LABEL[d.status] || '調査中'}）`
+    + `<button class="btn small" type="button" data-jump="${d.id}">その記録を見る</button>`;
+}
+function jumpTo(id) {
+  els.q.value = ''; els.fStatus.value = ''; render();
+  const el = els.trail.querySelector(`.hop[data-id="${id}"]`); if (!el) return;
+  el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash');
+}
 async function save() {
   const d = readForm();
   if (!d.keyword) { toast('検索ワードを入力してください。'); els.keyword.focus(); return; }
+  const dups = duplicatesOf(d.keyword);
+  if (dups.length && !confirm(`「${d.keyword}」は既に ${dups.length} 件記録があります。\nそれでも追加しますか？（検索エンジン違いなど、意図があるならメモに残すのがおすすめ）`)) return;
   els.save.disabled = true;
   try {
     if (editingId) {
@@ -558,7 +757,7 @@ function hopHtml(e, parent, matched) {
         <div class="arrow" aria-hidden="true">→</div>
         <div class="step"><div class="lbl">ヒットページ</div>${linkOrText(e.hitTitle, e.hitUrl)}</div>
       </div>
-      ${e.memo ? `<div class="memo">${esc(e.memo)}</div>` : ''}
+      ${e.memo ? `<div class="memo">${linkify(e.memo)}</div>` : ''}
       <div class="hop-meta">
         <span class="stamp ${esc(e.status || 'open')}">${STATUS_LABEL[e.status] || '調査中'}</span>
         ${e.author ? `<span class="who">by ${esc(e.author)}</span>` : ''}
@@ -580,7 +779,226 @@ function roots() {
   return entries.filter(e => !e.parentId || !byId(e.parentId))
     .sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
 }
+function sortedNotes() {
+  const key = n => [(n.order ?? Date.parse(n.createdAt || 0) ?? 0), n.createdAt || ''];
+  const cmp = (a, b) => { const ka = key(a), kb = key(b); return ka[0] - kb[0] || ka[1].localeCompare(kb[1]); };
+  return { active: notes.filter(n => !n.done).sort(cmp), done: notes.filter(n => n.done).sort(cmp) };
+}
+function renderNotes() {
+  const { active, done } = sortedNotes();
+  els.tabNoteN.textContent = active.length || '';
+  els.notesEmpty.hidden = notes.length > 0;
+  els.doneBar.hidden = done.length === 0;
+  els.doneLabel.textContent = `済みの付箋 ${done.length} 枚`;
+  els.notesDone.hidden = !showDone || done.length === 0;
+  $('btnToggleDone').textContent = showDone ? '隠す' : '表示する';
+
+  const seen = new Set();
+  const build = n => {
+    const li = document.createElement('li');
+    li.className = 'note'; li.dataset.id = n.id;
+    li.innerHTML = `<span class="grip" title="ドラッグで並べ替え" aria-label="並べ替え">⠿</span><textarea placeholder="ここに書く"></textarea>
+      <div class="links"></div>
+      <div class="note-meta"><span class="who"></span><span class="when"></span><span class="state"></span>
+      <div class="actions"><button class="btn small ghost" type="button" data-act="done"></button><button class="btn small ghost danger" type="button" data-act="delnote">はがす</button></div></div>`;
+    const ta = li.querySelector('textarea');
+    ta.addEventListener('input', () => queueNoteSave(n.id, ta));
+    ta.addEventListener('blur', () => { flushNoteSave(n.id, ta); if (reorderPending) setTimeout(renderNotes, 50); });
+    ta.addEventListener('focus', () => { if (li.classList.contains('done')) { li.classList.add('open'); autoGrow(ta); } });
+    ta.addEventListener('click', e => {
+      if (!(e.ctrlKey || e.metaKey)) return;
+      setTimeout(() => { const u = urlAt(ta.value, ta.selectionStart); if (u) window.open(u, '_blank', 'noopener'); }, 0);
+    });
+    ta.addEventListener('input', () => { renderNoteLinks(li, ta.value); autoGrow(ta); });
+    li.querySelector('.grip').addEventListener('pointerdown', ev => startDrag(ev, li));
+    return li;
+  };
+  const place = (list, arr) => {
+    const focusedInside = els.notes.contains(document.activeElement) || els.notesDone.contains(document.activeElement);
+    arr.forEach((n, i) => {
+      seen.add(n.id);
+      let li = document.querySelector(`.note[data-id="${n.id}"]`);
+      if (!li) { li = build(n); list.appendChild(li); }
+      const ta = li.querySelector('textarea');
+      const st = noteState.get(n.id);
+      const editing = document.activeElement === ta || (st && st.dirty);
+      if (!editing && ta.value !== (n.text || '')) { ta.value = n.text || ''; autoGrow(ta); }
+      else if (!ta.style.height) autoGrow(ta);
+      renderNoteLinks(li, ta.value);
+      li.classList.toggle('done', !!n.done);
+      if (!n.done) li.classList.remove('open');
+      li.querySelector('[data-act="done"]').textContent = n.done ? '戻す' : '済み';
+      li.querySelector('.who').textContent = n.updatedBy ? `by ${n.updatedBy}` : (n.author ? `by ${n.author}` : '');
+      li.querySelector('.when').textContent = fmtDate(n.updatedAt || n.createdAt);
+      const stateEl = li.querySelector('.state');
+      if (document.activeElement === ta && st && (n.text || '') !== st.base && ta.value !== (n.text || '')) {
+        stateEl.textContent = '他の人が更新しました（送信で上書き）'; stateEl.className = 'state remote';
+      } else if (st && st.dirty) { stateEl.textContent = '保存中'; stateEl.className = 'state saving'; }
+      else { stateEl.textContent = ''; stateEl.className = 'state'; }
+      // 並び順の反映（入力中は触らない: 要素を動かすとフォーカスが外れるため）
+      const inRightPlace = li.parentElement === list && list.children[i] === li;
+      if (!inRightPlace) {
+        if (focusedInside) reorderPending = true;
+        else list.insertBefore(li, list.children[i] || null);
+      }
+    });
+  };
+  place(els.notes, active);
+  place(els.notesDone, done);
+  if (!(els.notes.contains(document.activeElement) || els.notesDone.contains(document.activeElement))) reorderPending = false;
+  document.querySelectorAll('.note').forEach(li => { if (!seen.has(li.dataset.id)) li.remove(); });
+}
+function autoGrow(ta) {
+  ta.style.height = 'auto';
+  ta.style.height = Math.max(112, ta.scrollHeight) + 'px';
+}
+function renderNoteLinks(li, text) {
+  const box = li.querySelector('.links');
+  const urls = [...new Set((text.match(URL_RE) || []))];
+  const html = urls.map(u => `<a href="${esc(u)}" target="_blank" rel="noopener" title="${esc(u)}">${esc(u.replace(/^https?:\/\//, ''))}</a>`).join('');
+  if (box.innerHTML !== html) box.innerHTML = html;
+}
+async function setDone(id, done) {
+  try { await updateDoc(doc(notesRef(), id), { done, updatedAt: new Date().toISOString(), updatedBy: nickname, ts: serverTimestamp() }); }
+  catch (e) { console.error(e); toast('更新できませんでした: ' + (e.code || e.message)); }
+}
+// ---- ドラッグ並べ替え（マウス・タッチ共通） ----
+function startDrag(ev, li) {
+  ev.preventDefault();
+  const list = li.parentElement;
+  const id = li.dataset.id;
+  let target = null, before = true;
+  li.classList.add('dragging');
+  const clear = () => list.querySelectorAll('.drop-before,.drop-after').forEach(x => x.classList.remove('drop-before', 'drop-after'));
+  const move = e => {
+    const el = document.elementFromPoint(e.clientX, e.clientY);
+    const over = el && el.closest('.note');
+    clear();
+    if (!over || over === li || over.parentElement !== list) { target = null; return; }
+    const r = over.getBoundingClientRect();
+    before = (e.clientX - r.left) < r.width / 2;
+    target = over; over.classList.add(before ? 'drop-before' : 'drop-after');
+  };
+  const up = async () => {
+    window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up); window.removeEventListener('pointercancel', up);
+    li.classList.remove('dragging'); clear();
+    if (!target) return;
+    const arr = sortedNotes()[list === els.notes ? 'active' : 'done'].filter(n => n.id !== id);
+    const idx = arr.findIndex(n => n.id === target.dataset.id) + (before ? 0 : 1);
+    const ord = n => n.order ?? Date.parse(n.createdAt || 0) ?? 0;
+    const prev = arr[idx - 1], next = arr[idx];
+    let order;
+    if (prev && next) order = (ord(prev) + ord(next)) / 2;
+    else if (prev) order = ord(prev) + 1000;
+    else if (next) order = ord(next) - 1000;
+    else order = Date.now();
+    try { await updateDoc(doc(notesRef(), id), { order, ts: serverTimestamp() }); }
+    catch (e) { console.error(e); toast('並べ替えを保存できませんでした: ' + (e.code || e.message)); }
+  };
+  window.addEventListener('pointermove', move);
+  window.addEventListener('pointerup', up);
+  window.addEventListener('pointercancel', up);
+}
+function queueNoteSave(id, ta) {
+  const st = noteState.get(id) || { dirty: false, timer: null, base: (notes.find(n => n.id === id) || {}).text || '' };
+  st.dirty = true; clearTimeout(st.timer);
+  st.timer = setTimeout(() => flushNoteSave(id, ta), 900);
+  noteState.set(id, st);
+}
+async function flushNoteSave(id, ta) {
+  const st = noteState.get(id); if (!st || !st.dirty) return;
+  clearTimeout(st.timer); st.dirty = false; st.base = ta.value;
+  try {
+    await updateDoc(doc(notesRef(), id), { text: ta.value, updatedAt: new Date().toISOString(), updatedBy: nickname, ts: serverTimestamp() });
+  } catch (e) { console.error(e); st.dirty = true; toast('メモを保存できませんでした: ' + (e.code || e.message)); }
+  renderNotes();
+}
+async function addNote() {
+  try {
+    const ref = await addDoc(notesRef(), { text: '', done: false, order: Date.now(), author: nickname, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), updatedBy: nickname, ts: serverTimestamp() });
+    setTimeout(() => { const ta = document.querySelector(`.note[data-id="${ref.id}"] textarea`); if (ta) ta.focus(); }, 300);
+  } catch (e) { console.error(e); toast('付箋を足せませんでした: ' + (e.code || e.message)); }
+}
+async function removeNote(id) {
+  const n = notes.find(x => x.id === id); if (!n) return;
+  if (n.text && !confirm('この付箋をはがしますか？')) return;
+  try { await deleteDoc(doc(notesRef(), id)); noteState.delete(id); }
+  catch (e) { console.error(e); toast('はがせませんでした: ' + (e.code || e.message)); }
+}
+// ---------- 鍵束 ----------
+function readKeyForm() {
+  return { pw: els.kPw.value.trim(), status: els.kStatus.value, target: els.kTarget.value.trim(),
+           targetUrl: els.kTargetUrl.value.trim(), how: els.kHow.value.trim() };
+}
+function resetKeyForm() {
+  editingKeyId = null;
+  els.kPw.value = ''; els.kStatus.value = 'ok'; els.kTarget.value = ''; els.kTargetUrl.value = ''; els.kHow.value = '';
+  els.keyFormTitle.textContent = 'NEW KEY — パスワードを記録';
+  els.keySave.textContent = '記録する'; els.keyCancel.hidden = true;
+}
+async function saveKey() {
+  const d = readKeyForm();
+  if (!d.pw) { toast('パスワードを入力してください。'); els.kPw.focus(); return; }
+  els.keySave.disabled = true;
+  try {
+    if (editingKeyId) {
+      await updateDoc(doc(keysRef(), editingKeyId), { ...d, updatedAt: new Date().toISOString(), updatedBy: nickname });
+      toast('更新しました');
+    } else {
+      await addDoc(keysRef(), { ...d, author: nickname, createdAt: new Date().toISOString(), ts: serverTimestamp() });
+      toast('鍵束に加えました');
+    }
+    resetKeyForm();
+  } catch (e) { console.error(e); toast('保存できませんでした: ' + (e.code || e.message)); }
+  finally { els.keySave.disabled = false; }
+}
+function startEditKey(id) {
+  const k = keys.find(x => x.id === id); if (!k) return;
+  editingKeyId = id;
+  els.kPw.value = k.pw || ''; els.kStatus.value = k.status || 'ok'; els.kTarget.value = k.target || '';
+  els.kTargetUrl.value = k.targetUrl || ''; els.kHow.value = k.how || '';
+  els.keyFormTitle.textContent = 'EDIT — パスワードを編集';
+  els.keySave.textContent = '保存する'; els.keyCancel.hidden = false;
+  els.kPw.focus();
+}
+async function removeKey(id) {
+  const k = keys.find(x => x.id === id); if (!k) return;
+  if (!confirm(`「${k.pw}」を鍵束から外しますか？`)) return;
+  try { await deleteDoc(doc(keysRef(), id)); toast('外しました'); }
+  catch (e) { console.error(e); toast('外せませんでした: ' + (e.code || e.message)); }
+}
+function keyMatches(k) {
+  const q = els.kq.value.trim().toLowerCase();
+  return !q || [k.pw, k.target, k.targetUrl, k.how, k.author].some(v => (v || '').toLowerCase().includes(q));
+}
+function renderKeys() {
+  els.tabKeyN.textContent = keys.length || '';
+  els.keysEmpty.hidden = keys.length > 0;
+  const shown = keys.filter(keyMatches);
+  els.kCount.textContent = keys.length ? `${shown.length} / ${keys.length} 本` : '';
+  els.keys.innerHTML = shown.map(k => `
+    <li class="key" data-id="${k.id}">
+      <div class="row">
+        <div class="step"><div class="lbl">PASSWORD</div>
+          <div class="pw"><code>${esc(k.pw)}</code><button class="btn small ghost" type="button" data-act="copy" title="コピー">コピー</button></div></div>
+        <div class="step"><div class="lbl">使う場所</div>${linkOrText(k.target, k.targetUrl)}</div>
+        <div class="step"><div class="lbl">入手経路</div><div class="how">${k.how ? linkify(k.how) : '<span class="empty-val">未記入</span>'}</div></div>
+      </div>
+      <div class="hop-meta">
+        <span class="stamp ${k.status === 'ok' ? 'hit' : k.status === 'ng' ? 'miss' : 'open'}">${KEY_STATUS[k.status] || '未確認'}</span>
+        ${k.author ? `<span class="who">by ${esc(k.author)}</span>` : ''}
+        <span>${fmtDate(k.createdAt)}</span>
+        <div class="actions">
+          <button class="btn small ghost" type="button" data-act="edit">編集</button>
+          <button class="btn small ghost danger" type="button" data-act="del">外す</button>
+        </div>
+      </div>
+    </li>`).join('');
+  if (keys.length && !shown.length) els.keys.innerHTML = `<li class="empty">条件に合う鍵がありません。</li>`;
+}
 function render() {
+  els.tabRecN.textContent = entries.length || '';
+  checkDup();
   const sources = [...new Set(entries.flatMap(e => [e.sourceText, e.hitTitle]).filter(Boolean))].sort();
   els.sourceList.innerHTML = sources.map(s => `<option value="${esc(s)}">`).join('');
   renderParentOptions(editingId);
@@ -683,6 +1101,38 @@ els.trail.addEventListener('click', e => {
   const id = btn.closest('.hop').dataset.id;
   ({ edit: startEdit, del: remove, chain: useAsSource })[btn.dataset.act](id);
 });
+els.keyword.addEventListener('input', checkDup);
+els.dup.addEventListener('click', e => { const b = e.target.closest('[data-jump]'); if (b) jumpTo(b.dataset.jump); });
+document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => {
+  document.querySelectorAll('.tab').forEach(x => x.classList.toggle('active', x === t));
+  $('tabRecords').hidden = t.dataset.tab !== 'records';
+  $('tabNotes').hidden = t.dataset.tab !== 'notes';
+  $('tabKeys').hidden = t.dataset.tab !== 'keys';
+}));
+els.keySave.addEventListener('click', saveKey);
+els.keyCancel.addEventListener('click', resetKeyForm);
+els.kq.addEventListener('input', renderKeys);
+$('tabKeys').addEventListener('keydown', e => { if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') saveKey(); });
+els.keys.addEventListener('click', async e => {
+  const b = e.target.closest('button[data-act]'); if (!b) return;
+  const li = b.closest('.key'); const id = li.dataset.id;
+  if (b.dataset.act === 'edit') startEditKey(id);
+  else if (b.dataset.act === 'del') removeKey(id);
+  else if (b.dataset.act === 'copy') {
+    const k = keys.find(x => x.id === id);
+    try { await navigator.clipboard.writeText(k.pw); toast('コピーしました'); } catch { toast('コピーできませんでした'); }
+  }
+});
+$('btnAddNote').addEventListener('click', addNote);
+[els.notes, els.notesDone].forEach(list => list.addEventListener('click', e => {
+  const b = e.target.closest('button[data-act]'); if (!b) return;
+  const li = b.closest('.note'); const id = li.dataset.id;
+  if (b.dataset.act === 'delnote') removeNote(id);
+  if (b.dataset.act === 'done') setDone(id, !li.classList.contains('done'));
+}));
+$('btnToggleDone').addEventListener('click', () => { showDone = !showDone; renderNotes(); els.notesDone.querySelectorAll('textarea').forEach(autoGrow); });
+window.addEventListener('resize', () => document.querySelectorAll('.note textarea').forEach(autoGrow));
+window.addEventListener('beforeunload', () => { noteState.forEach((st, id) => { if (st.dirty) { const ta = document.querySelector(`.note[data-id="${id}"] textarea`); if (ta) flushNoteSave(id, ta); } }); });
 $('btnCopyMd').addEventListener('click', copyMd);
 $('btnExport').addEventListener('click', exportJson);
 $('btnImport').addEventListener('click', () => $('fileImport').click());
