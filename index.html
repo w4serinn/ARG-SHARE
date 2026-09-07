@@ -367,6 +367,32 @@
   table.map .flag.root { color: var(--ink); }
   .map-summary { display: flex; gap: 16px; flex-wrap: wrap; color: var(--manila-deep); font-family: var(--type); font-size: 12px; letter-spacing: .06em; margin: 0 0 12px; }
   .map-summary b { color: var(--manila); }
+
+  /* ---------- 捜査ボード（図） ---------- */
+  .view-toggle { display: flex; gap: 4px; }
+  .view-toggle .btn.small.on { background: var(--manila); color: var(--ink); }
+  .board { position: relative; height: 560px; background: var(--felt-deep); border: 1px solid var(--manila-line); border-radius: 2px; overflow: hidden; box-shadow: inset 0 0 40px rgba(0,0,0,.35); touch-action: none; }
+  .board svg { width: 100%; height: 100%; display: block; cursor: grab; }
+  .board svg.panning { cursor: grabbing; }
+  .board .legend { position: absolute; left: 10px; bottom: 8px; display: flex; gap: 12px; font-family: var(--type); font-size: 11px; color: var(--manila-deep); pointer-events: none; }
+  .board .legend i { display: inline-block; width: 18px; height: 0; border-top: 2px solid; vertical-align: middle; margin-right: 4px; }
+  .board .tools { position: absolute; right: 10px; top: 8px; display: flex; gap: 4px; }
+  .node { cursor: pointer; }
+  .node rect { fill: var(--manila); stroke: var(--manila-line); stroke-width: 1; }
+  .node.frontier rect { stroke: var(--thread); stroke-width: 2; }
+  .node.root rect { stroke: var(--ink); stroke-width: 2.5; }
+  .node.hover rect, .node.selected rect { fill: #F7EFD9; }
+  .node text { font-family: var(--sans); font-size: 12px; fill: var(--ink); pointer-events: none; }
+  .node text.sub { font-family: var(--type); font-size: 9px; fill: var(--ink-soft); }
+  .node .pin { fill: var(--pin); stroke: #7E1F17; stroke-width: .5; }
+  .node .badge { font-family: var(--type); font-weight: 700; font-size: 9px; fill: var(--thread); }
+  .edge { fill: none; stroke-width: 2; }
+  .edge.search { stroke: var(--thread); }
+  .edge.link { stroke: #D9B419; }
+  .edge.key { stroke: #6B8FCF; }
+  .edge.guess { stroke: #B7B7B7; stroke-dasharray: 5 4; }
+  .edge.implicit { stroke-dasharray: 3 4; }
+  .edge-label { font-family: var(--type); font-size: 9px; fill: var(--manila-deep); pointer-events: none; }
 </style>
 </head>
 <body>
@@ -589,6 +615,7 @@
     <div class="filters">
       <input type="text" id="mapQ" placeholder="ページを探す">
       <select id="mapSite"><option value="">すべての起点</option></select>
+      <span class="view-toggle"><button class="btn small on" type="button" data-view="board">図</button><button class="btn small" type="button" data-view="table">表</button></span>
       <select id="mapSort">
         <option value="frontier">未開拓を上に</option>
         <option value="merge">合流を上に</option>
@@ -598,7 +625,14 @@
       </select>
       <span class="count" id="mapCount"></span>
     </div>
-    <div class="map-wrap">
+    <div class="board" id="board" hidden>
+      <svg id="boardSvg" xmlns="http://www.w3.org/2000/svg"></svg>
+      <div class="tools">
+        <button class="btn small" type="button" id="boardFit">全体を表示</button>
+      </div>
+      <div class="legend"><span><i style="border-color:var(--thread)"></i>検索</span><span><i style="border-color:#D9B419"></i>リンク</span><span><i style="border-color:#6B8FCF"></i>鍵</span><span><i style="border-color:#B7B7B7;border-top-style:dashed"></i>推測</span><span>点線 = URL一致で自動連結</span></div>
+    </div>
+    <div class="map-wrap" id="mapTable">
       <table class="map">
         <thead><tr><th>ページ</th><th>起点</th><th class="num">入</th><th class="num">出</th><th>到達経路</th><th>初到達</th></tr></thead>
         <tbody id="mapBody"></tbody>
@@ -684,6 +718,7 @@ const els = {
   keySave: $('btnKeySave'), keyCancel: $('btnKeyCancel'), keyFormTitle: $('keyFormTitle'), kq: $('kq'), keys: $('keys'), keysEmpty: $('keysEmpty'), kCount: $('kCount'), tabKeyN: $('tabKeyN'),
   mWords: $('mWords'), mErr: $('mErr'), mq: $('mq'), misses: $('misses'), missesEmpty: $('missesEmpty'), mCount: $('mCount'), tabMissN: $('tabMissN'),
   cq: $('cq'), cands: $('cands'), candsEmpty: $('candsEmpty'), candCountHead: $('candCountHead'),
+  board: $('board'), boardSvg: $('boardSvg'), mapTable: $('mapTable'),
   mapQ: $('mapQ'), mapSite: $('mapSite'), mapSort: $('mapSort'), mapCount: $('mapCount'), mapBody: $('mapBody'), mapEmpty: $('mapEmpty'), mapSummary: $('mapSummary'), tabMapN: $('tabMapN'),
   pLeafN: $('pLeafN'), pCandN: $('pCandN'), pLeaves: $('pLeaves'), pCands: $('pCands'), pVerdict: $('pVerdict'), panelBody: $('panelBody'), panelChev: $('panelChev'),
   dup: $('dup'), notes: $('notes'), notesDone: $('notesDone'), notesEmpty: $('notesEmpty'), doneBar: $('doneBar'), doneLabel: $('doneLabel'), tabRecN: $('tabRecN'), tabNoteN: $('tabNoteN')
@@ -862,10 +897,18 @@ function renderParentOptions(excludeId) {
   if (byId(cur) && !banned.has(cur)) els.parent.value = cur;
   updateParentNote();
 }
+let sourceManual = false;  // 出典を手で書き換えたか
 function updateParentNote() {
   const p = byId(els.parent.value);
   els.parentNote.hidden = !p;
-  if (p) els.parentNote.textContent = `↳ ${labelOf(p)} からの連鎖として記録します`;
+  const isRoot = els.type.value === 'root';
+  if (p) {
+    if (!sourceManual) { els.sourceText.value = p.hitTitle || p.hitUrl || ''; els.sourceUrl.value = p.hitUrl || ''; }
+    els.parentNote.innerHTML = `↳ ${esc(labelOf(p))} からの連鎖として記録します。出典はその到達ページが自動で入ります`
+      + (sourceManual ? '' : ` <button class="btn small ghost" type="button" id="btnSrcEdit">出典を手で直す</button>`);
+    const b = $('btnSrcEdit'); if (b) b.addEventListener('click', () => { sourceManual = true; updateParentNote(); els.sourceText.focus(); });
+  }
+  document.querySelectorAll('.src-row').forEach(el => el.hidden = isRoot || (!!p && !sourceManual));
 }
 function readForm() {
   const type = els.type.value;
@@ -884,20 +927,24 @@ function applyType() {
   els.typeHelp.textContent = t.help;
   const isRoot = els.type.value === 'root';
   els.parentRow.hidden = isRoot;
-  document.querySelectorAll('.src-row').forEach(el => el.hidden = isRoot);
+  updateParentNote();
   els.dup.classList.toggle('show', !isRoot && els.dup.innerHTML !== '' && els.type.value === 'search');
 }
 function fillForm(e) {
-  els.type.value = TYPE[e.type] ? e.type : 'search'; applyType();
-  els.status.value = e.status || 'open';
-  els.parent.value = e.parentId || ''; updateParentNote();
-  els.keyword.value = e.keyword || '';
+  const p = e.parentId ? byId(e.parentId) : null;
+  sourceManual = !!p && !!(e.sourceText || e.sourceUrl) && !((e.sourceText || '') === (p.hitTitle || p.hitUrl || '') && (e.sourceUrl || '') === (p.hitUrl || ''));
   els.sourceText.value = e.sourceText || ''; els.sourceUrl.value = e.sourceUrl || '';
+  els.type.value = TYPE[e.type] ? e.type : 'search';
+  els.status.value = e.status || 'open';
+  els.parent.value = e.parentId || '';
+  applyType();
+  els.keyword.value = e.keyword || '';
   els.hitTitle.value = e.hitTitle || ''; els.hitUrl.value = e.hitUrl || '';
   els.memo.value = e.memo || '';
   checkDup();
 }
 function resetForm() {
+  sourceManual = false;
   renderParentOptions(null);
   fillForm({});
   editingId = null;
@@ -969,10 +1016,8 @@ function startEdit(id) {
 function useAsSource(id) {
   const e = byId(id); if (!e) return;
   resetForm();
-  els.type.value = 'search'; applyType();
-  els.parent.value = e.id; updateParentNote();
-  els.sourceText.value = e.hitTitle || e.hitUrl || '';
-  els.sourceUrl.value = e.hitUrl || '';
+  els.type.value = 'search';
+  els.parent.value = e.id; applyType();
   $('formCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
   els.keyword.focus();
   toast('このページから続く記録を作ります');
@@ -1384,6 +1429,11 @@ function renderMap() {
   const frontier = all.filter(p => p.out === 0).length, merged = all.filter(p => p.arrivals.length >= 2).length;
   els.mapSummary.innerHTML = `<span>ページ <b>${all.length}</b></span><span>未開拓 <b>${frontier}</b></span><span>合流 <b>${merged}</b></span>`;
   els.mapCount.textContent = all.length ? `${list.length} / ${all.length} ページ` : '';
+  els.board.hidden = boardView !== 'board' || !all.length;
+  els.mapTable.hidden = boardView !== 'table' || !all.length;
+  document.querySelectorAll('.view-toggle .btn').forEach(b => b.classList.toggle('on', b.dataset.view === boardView));
+  els.mapSort.style.visibility = boardView === 'table' ? 'visible' : 'hidden';
+  if (boardView === 'board' && !els.board.hidden) renderBoard(all, list);
   els.mapBody.innerHTML = list.map(p => {
     const flags = (p.isRoot ? '<span class="flag root">起点</span>' : '') + (p.out === 0 ? '<span class="flag frontier">未開拓</span>' : '') + (p.arrivals.length >= 2 ? '<span class="flag merge">合流</span>' : '');
     const routes = Object.entries(p.types).map(([t, n]) => `${TYPE[t].label}×${n}`).join(' ');
@@ -1398,6 +1448,135 @@ function renderMap() {
     </tr>`;
   }).join('');
 }
+
+// ---------- 捜査ボード（ページ地図の図） ----------
+let boardView = localStorage.getItem('arg-map-view') || 'board';
+const boardPos = new Map();   // pageKey -> {x,y}（手で動かした位置を保持）
+let boardVB = null;           // viewBox {x,y,w,h}
+const NODE_W = 170, NODE_H = 44, GAP_X = 90, GAP_Y = 18;
+function layoutBoard(pages) {
+  const byKey = new Map(pages.map(p => [p.key, p]));
+  const keyOfEntry = e => norm(e.hitUrl) ? 'u:' + norm(e.hitUrl) : norm(e.hitTitle) ? 't:' + norm(e.hitTitle) : null;
+  // ページ間の辺（記録ごと）
+  const edges = [];
+  entries.forEach(e => {
+    const pid = parentOf.get(e.id); if (!pid) return;
+    const parent = byId(pid); if (!parent) return;
+    const a = keyOfEntry(parent), b = keyOfEntry(e);
+    if (!a || !b || a === b || !byKey.has(a) || !byKey.has(b)) return;
+    edges.push({ from: a, to: b, type: typeOf(e), implicit: e.parentId !== pid, label: e.keyword, id: e.id });
+  });
+  // 深さ: 親ページの深さ+1（複数親なら最小）。閉路や孤立は0
+  const parents = new Map(); edges.forEach(ed => { if (!parents.has(ed.to)) parents.set(ed.to, []); parents.get(ed.to).push(ed.from); });
+  const children = new Map(); edges.forEach(ed => { if (!children.has(ed.from)) children.set(ed.from, []); children.get(ed.from).push(ed.to); });
+  const depth = new Map();
+  const rootsK = pages.filter(p => !parents.has(p.key)).map(p => p.key);
+  const queue = rootsK.map(k => [k, 0]);
+  while (queue.length) { const [k, d] = queue.shift(); if (depth.has(k)) continue; depth.set(k, d); (children.get(k) || []).forEach(c => queue.push([c, d + 1])); }
+  pages.forEach(p => { if (!depth.has(p.key)) depth.set(p.key, 0); });
+  // 縦位置: 根から深さ優先で並べ、同じ列内の順番を決める
+  const order = []; const seen = new Set();
+  const dfs = k => { if (seen.has(k)) return; seen.add(k); order.push(k); (children.get(k) || []).sort().forEach(dfs); };
+  [...rootsK].sort((a, b) => { const pa = byKey.get(a), pb = byKey.get(b); return (pb.isRoot - pa.isRoot) || ((pa.first.createdAt || '').localeCompare(pb.first.createdAt || '')); }).forEach(dfs);
+  pages.forEach(p => dfs(p.key));
+  const colY = new Map();
+  const pos = new Map();
+  order.forEach(k => {
+    const d = depth.get(k);
+    const y = colY.get(d) || 0; colY.set(d, y + 1);
+    pos.set(k, boardPos.get(k) || { x: d * (NODE_W + GAP_X), y: y * (NODE_H + GAP_Y) });
+  });
+  return { edges, pos };
+}
+function fitBoard(pos) {
+  const xs = [...pos.values()];
+  if (!xs.length) { boardVB = { x: 0, y: 0, w: 800, h: 500 }; return; }
+  const minX = Math.min(...xs.map(p => p.x)) - 40, minY = Math.min(...xs.map(p => p.y)) - 40;
+  const maxX = Math.max(...xs.map(p => p.x)) + NODE_W + 40, maxY = Math.max(...xs.map(p => p.y)) + NODE_H + 40;
+  const bw = els.board.clientWidth || 800, bh = els.board.clientHeight || 560;
+  const scale = Math.max((maxX - minX) / bw, (maxY - minY) / bh, 0.6);
+  boardVB = { x: minX - ((bw * scale) - (maxX - minX)) / 2, y: minY - ((bh * scale) - (maxY - minY)) / 2, w: bw * scale, h: bh * scale };
+}
+function renderBoard(pages, list) {
+  const shown = new Set(list.map(p => p.key));
+  const { edges, pos } = layoutBoard(pages);
+  if (!boardVB) fitBoard(pos);
+  const svg = els.boardSvg;
+  svg.setAttribute('viewBox', `${boardVB.x} ${boardVB.y} ${boardVB.w} ${boardVB.h}`);
+  const byKey = new Map(pages.map(p => [p.key, p]));
+  const trunc = (t, n) => t.length > n ? t.slice(0, n - 1) + '…' : t;
+  const edgeHtml = edges.map(ed => {
+    const a = pos.get(ed.from), b = pos.get(ed.to);
+    const x1 = a.x + NODE_W, y1 = a.y + NODE_H / 2, x2 = b.x, y2 = b.y + NODE_H / 2;
+    const dx = Math.max(40, Math.abs(x2 - x1) / 2);
+    const dim = !(shown.has(ed.from) && shown.has(ed.to));
+    return `<path class="edge ${ed.type} ${ed.implicit ? 'implicit' : ''}" style="${dim ? 'opacity:.15' : ''}" d="M${x1},${y1} C${x1 + dx},${y1} ${x2 - dx},${y2} ${x2},${y2}"/>
+      <text class="edge-label" x="${(x1 + x2) / 2}" y="${(y1 + y2) / 2 - 4}" text-anchor="middle" style="${dim ? 'opacity:.15' : ''}">${esc(trunc(ed.label || '', 18))}</text>`;
+  }).join('');
+  const nodeHtml = pages.map(p => {
+    const { x, y } = pos.get(p.key);
+    const cls = ['node', p.isRoot ? 'root' : '', p.out === 0 ? 'frontier' : ''].join(' ');
+    const dim = !shown.has(p.key);
+    return `<g class="${cls}" data-key="${esc(p.key)}" data-jump="${p.first.id}" transform="translate(${x},${y})" style="${dim ? 'opacity:.2' : ''}">
+      <rect width="${NODE_W}" height="${NODE_H}" rx="2"/>
+      <circle class="pin" cx="${NODE_W / 2}" cy="0" r="4"/>
+      <text x="10" y="18">${esc(trunc(p.title || p.url || '', 16))}</text>
+      <text class="sub" x="10" y="34">${esc(trunc((p.url || '').replace(/^https?:\/\//, ''), 30))}</text>
+      ${p.arrivals.length >= 2 ? `<text class="badge" x="${NODE_W - 8}" y="14" text-anchor="end">入${p.arrivals.length}</text>` : ''}
+      ${p.out === 0 && !p.isRoot ? `<text class="badge" x="${NODE_W - 8}" y="${NODE_H - 6}" text-anchor="end">未開拓</text>` : ''}
+    </g>`;
+  }).join('');
+  svg.innerHTML = `<g id="boardEdges">${edgeHtml}</g><g id="boardNodes">${nodeHtml}</g>`;
+}
+// パン・ズーム・ノード移動
+(function boardInteractions() {
+  const svg = els.boardSvg; let drag = null;
+  const toWorld = (cx, cy) => { const r = svg.getBoundingClientRect(); return { x: boardVB.x + (cx - r.left) / r.width * boardVB.w, y: boardVB.y + (cy - r.top) / r.height * boardVB.h }; };
+  svg.addEventListener('pointerdown', e => {
+    if (!boardVB) return;
+    const node = e.target.closest('.node');
+    const w = toWorld(e.clientX, e.clientY);
+    drag = node ? { kind: 'node', key: node.dataset.key, node, start: w, moved: false, orig: null }
+                : { kind: 'pan', start: { x: e.clientX, y: e.clientY }, vb: { ...boardVB }, moved: false };
+    if (node) { const m = /translate\(([-\d.]+),([-\d.]+)\)/.exec(node.getAttribute('transform')); drag.orig = { x: +m[1], y: +m[2] }; node.classList.add('selected'); }
+    else svg.classList.add('panning');
+    svg.setPointerCapture(e.pointerId);
+  });
+  svg.addEventListener('pointermove', e => {
+    if (!drag) return;
+    if (drag.kind === 'pan') {
+      const r = svg.getBoundingClientRect();
+      const dx = (e.clientX - drag.start.x) / r.width * drag.vb.w, dy = (e.clientY - drag.start.y) / r.height * drag.vb.h;
+      if (Math.abs(dx) + Math.abs(dy) > 2) drag.moved = true;
+      boardVB = { ...drag.vb, x: drag.vb.x - dx, y: drag.vb.y - dy };
+      svg.setAttribute('viewBox', `${boardVB.x} ${boardVB.y} ${boardVB.w} ${boardVB.h}`);
+    } else {
+      const w = toWorld(e.clientX, e.clientY);
+      const nx = drag.orig.x + (w.x - drag.start.x), ny = drag.orig.y + (w.y - drag.start.y);
+      if (Math.abs(w.x - drag.start.x) + Math.abs(w.y - drag.start.y) > 3) drag.moved = true;
+      boardPos.set(drag.key, { x: nx, y: ny });
+      drag.node.setAttribute('transform', `translate(${nx},${ny})`);
+    }
+  });
+  const end = e => {
+    if (!drag) return;
+    if (drag.kind === 'node') {
+      drag.node.classList.remove('selected');
+      if (!drag.moved) { boardPos.delete(drag.key); jumpTo(drag.node.dataset.jump); }
+      else renderMap();  // 辺を引き直す
+    } else svg.classList.remove('panning');
+    drag = null;
+  };
+  svg.addEventListener('pointerup', end); svg.addEventListener('pointercancel', end);
+  svg.addEventListener('wheel', e => {
+    if (!boardVB) return; e.preventDefault();
+    const f = e.deltaY > 0 ? 1.12 : 1 / 1.12;
+    const w = toWorld(e.clientX, e.clientY);
+    boardVB = { x: w.x - (w.x - boardVB.x) * f, y: w.y - (w.y - boardVB.y) * f, w: boardVB.w * f, h: boardVB.h * f };
+    svg.setAttribute('viewBox', `${boardVB.x} ${boardVB.y} ${boardVB.w} ${boardVB.h}`);
+  }, { passive: false });
+  $('boardFit').addEventListener('click', () => { boardVB = null; renderMap(); });
+})();
 
 // ---------- 残量パネル ----------
 let panelOpen = localStorage.getItem('arg-panel-open') !== '0';
@@ -1613,7 +1792,7 @@ els.gate.addEventListener('keydown', e => { if (e.key === 'Enter') els.btnOpen.c
 $('btnLeave').addEventListener('click', leave);
 els.save.addEventListener('click', save);
 els.cancel.addEventListener('click', resetForm);
-els.parent.addEventListener('change', updateParentNote);
+els.parent.addEventListener('change', () => { sourceManual = false; updateParentNote(); });
 els.type.addEventListener('change', () => { applyType(); checkDup(); });
 els.fSite.addEventListener('input', render);
 document.addEventListener('keydown', e => {
@@ -1639,6 +1818,7 @@ function showTab(name) {
   $('tabKeys').hidden = name !== 'keys';
   $('tabMisses').hidden = name !== 'misses';
   $('tabMap').hidden = name !== 'map';
+  if (name === 'map') { boardVB = null; renderMap(); }
   if (name === 'notes') growAllNotes();
 }
 document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => showTab(t.dataset.tab)));
@@ -1663,6 +1843,7 @@ els.cq.addEventListener('input', renderWords);
   ul.addEventListener('keydown', e => { if (e.target.classList.contains('memo-in') && e.key === 'Enter') e.target.blur(); });
 });
 [els.mapQ, els.mapSite, els.mapSort].forEach(el => el.addEventListener('input', renderMap));
+document.querySelectorAll('.view-toggle .btn').forEach(b => b.addEventListener('click', () => { boardView = b.dataset.view; localStorage.setItem('arg-map-view', boardView); if (boardView === 'board') boardVB = null; renderMap(); }));
 els.mapBody.addEventListener('click', e => { if (e.target.closest('a')) return; const tr = e.target.closest('tr[data-jump]'); if (tr) jumpTo(tr.dataset.jump); });
 $('panelHead').addEventListener('click', () => { panelOpen = !panelOpen; localStorage.setItem('arg-panel-open', panelOpen ? '1' : '0'); renderPanel(); });
 els.pLeaves.addEventListener('click', e => { const li = e.target.closest('[data-jump]'); if (li) jumpTo(li.dataset.jump); });
