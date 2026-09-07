@@ -440,6 +440,37 @@
   .children > .branch > .folded-note { position: relative; }
   .children > .branch > .folded-note::before { content: ""; position: absolute; left: -18px; top: 12px; width: 14px; height: 2px; background: var(--thread); }
   @media (max-width: 720px) { .children > .branch > .stub::before, .children > .branch > .folded-note::before { left: -14px; width: 10px; } }
+
+  /* ---------- 段のレイアウト: どこから→どこへ を主役に ---------- */
+  .chain { display: grid; grid-template-columns: 1fr auto 1fr; gap: 12px; align-items: start; }
+  .chain.child { grid-template-columns: auto 1fr; }
+  .chain.child .arrow { padding-top: 14px; }
+  .chain .step .val { font-size: 15px; font-weight: 600; }
+  .chain .step .val a { text-decoration-color: var(--thread); }
+  .step .entrance { font-size: 13px; }
+  .means { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
+  .means .ti { font-family: var(--type); font-weight: 700; font-size: 11px; letter-spacing: .08em; color: var(--ink-soft); }
+  .means .kwbox { font-size: 13px; padding: 1px 8px 1px 18px; }
+  .means .kwbox::before { left: 6px; width: 6px; height: 6px; margin-top: -3.5px; }
+  .means .src-note { font-size: 12px; color: var(--ink-soft); }
+  .means .src-note a { color: var(--ink-soft); }
+  .hop { padding: 8px 0 6px; }
+  .lbl .auto { font-size: 11px; color: var(--ink-soft); font-weight: 400; letter-spacing: 0; }
+  @media (max-width: 720px) { .chain.child { grid-template-columns: auto 1fr; } .chain.child .arrow { transform: none; padding-top: 14px; } }
+
+  /* ---------- 広い画面: 鍵束2列 / 単語帳3列 ---------- */
+  @media (min-width: 1200px) {
+    #tabKeys { display: grid; grid-template-columns: minmax(380px, 440px) 1fr; gap: 24px; align-items: start; }
+    .words-grid { display: grid; grid-template-columns: minmax(300px, 360px) 1fr 1fr; gap: 24px; align-items: start; }
+    .words-form { position: sticky; top: 12px; }
+    .words-grid .misses { grid-template-columns: 1fr; }
+    .words-grid .words-section { margin-bottom: 0; }
+    .words-head { flex-wrap: wrap; }
+    .words-head input { min-width: 120px; }
+  }
+  @media (min-width: 1500px) {
+    #tabKeys { grid-template-columns: 460px 1fr; }
+  }
 </style>
 </head>
 <body>
@@ -620,6 +651,7 @@
   </div>
 
   <div id="tabKeys" hidden>
+    <div class="desk-left">
     <section class="card">
       <h2 id="keyFormTitle">NEW KEY — パスワードを記録</h2>
       <div class="grid">
@@ -653,6 +685,8 @@
         <button class="btn primary" id="btnKeySave">記録する</button>
       </div>
     </section>
+    </div>
+    <div class="desk-right">
     <div class="filters">
       <input type="text" id="kq" placeholder="鍵束を探す">
       <button class="btn small" id="btnHideAll" type="button">すべて黒塗りに戻す</button>
@@ -660,6 +694,7 @@
     </div>
     <ul class="keys" id="keys"></ul>
     <div class="empty" id="keysEmpty" hidden><strong>まだ鍵がありません。</strong><br>見つけたパスワードと、その入手経路を上の書類から記録してください。パスワードと入手経路は黒塗りで表示され、各自がクリックしたときだけ開示されます。</div>
+    </div>
   </div>
 
   <div id="tabMap" hidden>
@@ -695,6 +730,8 @@
   </div>
 
   <div id="tabMisses" hidden>
+    <div class="words-grid">
+    <div class="words-form">
     <section class="card">
       <h2>WORDS — 単語帳にまとめて登録</h2>
       <div class="grid">
@@ -709,6 +746,7 @@
       </div>
       <div class="err" id="mErr"></div>
     </section>
+    </div>
 
     <div class="words-section">
       <div class="words-head"><span>SUSPECTS — 怪しい単語</span><span class="n" id="candCountHead"></span><input type="text" id="cq" placeholder="怪しい単語を探す"></div>
@@ -720,6 +758,7 @@
       <div class="words-head"><span>MISSES — 空振り</span><span class="n" id="mCount"></span><input type="text" id="mq" placeholder="空振りを探す"></div>
       <ul class="misses" id="misses"></ul>
       <div class="empty" id="missesEmpty" hidden><strong>まだ空振りがありません。</strong></div>
+    </div>
     </div>
   </div>
   </div>
@@ -754,6 +793,7 @@ const TYPE = {
   root:   { label: '起点',   mark: '起点',  kwLabel: 'サイトの呼び名',         ph: '例: 本編サイト / 関係者のまとめサイト', help: 'ARGの入口。出典はなく、到達ページに入口のURLを入れます。' }
 };
 const typeOf = e => TYPE[e.type] ? e.type : 'search';
+const safeKw = e => typeOf(e) === 'key' ? '鍵 ●●●●' : (e.keyword || '');  // 一覧・結び目ではパスワードを伏せる
 const LS_KEY = 'arg-case-session';
 
 const $ = id => document.getElementById(id);
@@ -814,7 +854,7 @@ const childrenOf = id => entries.filter(e => parentOf.get(e.id) === id).sort((a,
 const treeChildrenOf = id => childrenOf(id).filter(e => !e.hub);      // カード内に描く子（ハブは別カード）
 const hubChildrenOf = id => childrenOf(id).filter(e => !!e.hub);
 const descendants = id => childrenOf(id).flatMap(c => [c, ...descendants(c.id)]);
-const labelOf = e => (e.hitTitle || e.hitUrl || `「${e.keyword}」のヒットページ`);
+const labelOf = e => (e.hitTitle || e.hitUrl || `「${safeKw(e)}」の到達ページ`);
 let toastTimer;
 function toast(msg) {
   els.toast.textContent = msg; els.toast.classList.add('show');
@@ -946,7 +986,7 @@ function renderParentOptions(excludeId) {
   const cur = els.parent.value;
   const opts = entries.filter(e => !banned.has(e.id))
     .sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''))
-    .map(e => `<option value="${e.id}">${esc(e.keyword)} → ${esc(labelOf(e))}</option>`);
+    .map(e => `<option value="${e.id}">${esc(safeKw(e))} → ${esc(labelOf(e))}</option>`);
   els.parent.innerHTML = '<option value="">なし（新しい起点）</option>' + opts.join('');
   if (byId(cur) && !banned.has(cur)) els.parent.value = cur;
   updateParentNote();
@@ -1081,8 +1121,8 @@ async function remove(id) {
   const e = byId(id); if (!e) return;
   const kids = childrenOf(id).filter(k => k.parentId === id);
   const msg = kids.length
-    ? `「${e.keyword}」を削除しますか？\n続きの ${kids.length} 件は、ひとつ前の記録につなぎ直します。`
-    : `「${e.keyword}」の記録を削除しますか？`;
+    ? `「${safeKw(e)}」を削除しますか？\n続きの ${kids.length} 件は、ひとつ前の記録につなぎ直します。`
+    : `「${safeKw(e)}」の記録を削除しますか？`;
   if (!confirm(msg)) return;
   try {
     const batch = writeBatch(db);
@@ -1108,22 +1148,30 @@ function hopHtml(e, parent, matched, sharedSource) {
   const t = typeOf(e);
   const implicit = parent && e.parentId !== parent.id;
   const sameAsParent = parent && (implicit || !e.sourceText || e.sourceText === parent.hitTitle || e.sourceText === parent.hitUrl);
-  const sourceCell = t === 'root' ? `<div class="entrance">— 入口 —</div>`
-    : parent
-    ? `<div class="from-above">↑ 上の到達ページから${implicit ? '<span class="auto">（URL一致で自動連結）</span>' : ''}</div>${sameAsParent ? '' : linkOrText(e.sourceText, e.sourceUrl)}`
-    : sharedSource ? `<div class="same-source">↑ 上の出典から</div>`
-    : linkOrText(e.sourceText, e.sourceUrl);
+  // 主役: どこから → どこへ
+  let main;
+  if (t === 'root') {
+    main = `<div class="chain root"><div class="step"><div class="lbl">入口</div><div class="entrance">— ENTRANCE —</div></div><div class="arrow" aria-hidden="true">→</div><div class="step"><div class="lbl">到達ページ</div>${linkOrText(e.hitTitle, e.hitUrl)}</div></div>`;
+  } else if (parent || sharedSource) {
+    main = `<div class="chain child"><div class="arrow" aria-hidden="true">→</div><div class="step"><div class="lbl">到達ページ${implicit ? ' <span class="auto">（URL一致で自動連結）</span>' : ''}</div>${linkOrText(e.hitTitle, e.hitUrl)}</div></div>`;
+  } else {
+    main = `<div class="chain"><div class="step"><div class="lbl">出典</div>${linkOrText(e.sourceText, e.sourceUrl)}</div><div class="arrow" aria-hidden="true">→</div><div class="step"><div class="lbl">到達ページ</div>${linkOrText(e.hitTitle, e.hitUrl)}</div></div>`;
+  }
+  // 添え物: どうやって
+  let means = '';
+  if (t !== 'root') {
+    const body = t === 'key'
+      ? `<span class="kwbox redact ${revealed.has('rec:' + e.id) ? 'revealed' : ''}" data-reveal="rec:${e.id}">${esc(e.keyword)}</span>${revealed.has('rec:' + e.id) ? '<button class="btn small ghost" type="button" data-act="copy" title="コピー">コピー</button>' : ''}`
+      : `<span class="kwbox">${esc(e.keyword)}</span>${t === 'search' ? '<button class="btn small ghost" type="button" data-act="copy" title="コピー">コピー</button>' : ''}`;
+    const srcNote = parent && !sameAsParent ? `<span class="src-note">出典: ${linkOrText(e.sourceText, e.sourceUrl).replace(/<\/?div[^>]*>/g, '')}</span>` : '';
+    means = `<div class="means"><span class="ti">${TYPE[t].mark}</span>${body}${srcNote}</div>`;
+  } else if (e.keyword) {
+    means = `<div class="means"><span class="ti">起点</span><span class="kwbox">${esc(e.keyword)}</span></div>`;
+  }
   return `
     <div class="hop status-${esc(e.status || 'open')} ${matched ? '' : 'dim'} ${implicit ? 'implicit' : ''}" data-id="${e.id}">
-      <div class="chain">
-        <div class="step"><div class="lbl">出典</div>${sourceCell}</div>
-        <div class="arrow" aria-hidden="true">→</div>
-        <div class="step"><div class="lbl">${esc(TYPE[t].kwLabel)}</div><div class="val pw">${t === 'key'
-          ? `<span class="kwbox redact ${revealed.has('rec:' + e.id) ? 'revealed' : ''}" data-reveal="rec:${e.id}"><span class="ti">${TYPE[t].mark}</span>${esc(e.keyword)}</span>${revealed.has('rec:' + e.id) ? '<button class="btn small ghost" type="button" data-act="copy" title="コピー">コピー</button>' : ''}`
-          : `<span class="kwbox"><span class="ti">${TYPE[t].mark}</span>${esc(e.keyword)}</span>${t === 'search' ? '<button class="btn small ghost" type="button" data-act="copy" title="コピー">コピー</button>' : ''}`}</div></div>
-        <div class="arrow" aria-hidden="true">→</div>
-        <div class="step"><div class="lbl">到達ページ</div>${linkOrText(e.hitTitle, e.hitUrl)}</div>
-      </div>
+      ${main}
+      ${means}
       ${e.memo ? `<div class="memo">${linkify(e.memo)}</div>` : ''}
       <div class="hop-meta">
         <span class="stamp ${esc(e.status || 'open')}">${STATUS_LABEL[e.status] || '調査中'}</span>
@@ -1144,7 +1192,7 @@ function subtreeCount(id) { return treeChildrenOf(id).reduce((a, k) => a + 1 + s
 function treeHtml(e, parent, sharedSource) {
   const kids = treeChildrenOf(e.id), hubs = hubChildrenOf(e.id);
   const isFolded = folded.has(e.id) && (kids.length || hubs.length);
-  const stubs = hubs.map(h => `<div class="branch stub-branch"><div class="stub">→ 別カードへ切り離し: <a href="#" data-jump="${h.id}">${esc(h.keyword)}</a> <span>（${esc(h.hitTitle || h.hitUrl || '')}）</span></div></div>`).join('');
+  const stubs = hubs.map(h => `<div class="branch stub-branch"><div class="stub">→ 別カードへ切り離し: <a href="#" data-jump="${h.id}">${esc(safeKw(h))}</a> <span>（${esc(h.hitTitle || h.hitUrl || '')}）</span></div></div>`).join('');
   const body = isFolded
     ? `<div class="children"><div class="branch"><div class="folded-note">…${subtreeCount(e.id)} 件を畳んでいます${hubs.length ? `（別カードへの切り離し ${hubs.length} 件）` : ''}</div></div></div>`
     : (kids.length || hubs.length) ? `<div class="children">${kids.map(k => treeHtml(k, e)).join('')}${stubs}</div>` : '';
@@ -1666,7 +1714,7 @@ function renderPanel() {
   els.pLeafN.textContent = lv.length; els.pLeafN.classList.toggle('zero', !lv.length);
   els.pCandN.textContent = cands.length; els.pCandN.classList.toggle('zero', !cands.length);
   els.panelBody.hidden = !panelOpen; els.panelChev.textContent = panelOpen ? '▾' : '▸';
-  const row = (e, dismissed) => `<li data-jump="${e.id}" style="${dismissed ? 'opacity:.55' : ''}"><span class="w">${esc(e.keyword)}</span><span class="sub">→ ${esc(e.hitTitle || e.hitUrl)}</span><span class="meta">${esc(e.author || '')} ${fmtDate(e.updatedAt || e.createdAt)}</span><button class="btn small ghost" type="button" data-dismiss="${e.id}" data-to="${dismissed ? '0' : '1'}" title="${dismissed ? '先端に戻す' : 'カードは残したまま、先端の一覧から外す'}">${dismissed ? '戻す' : '外す'}</button></li>`;
+  const row = (e, dismissed) => `<li data-jump="${e.id}" style="${dismissed ? 'opacity:.55' : ''}"><span class="w">${esc(safeKw(e))}</span><span class="sub">→ ${esc(e.hitTitle || e.hitUrl)}</span><span class="meta">${esc(e.author || '')} ${fmtDate(e.updatedAt || e.createdAt)}</span><button class="btn small ghost" type="button" data-dismiss="${e.id}" data-to="${dismissed ? '0' : '1'}" title="${dismissed ? '先端に戻す' : 'カードは残したまま、先端の一覧から外す'}">${dismissed ? '戻す' : '外す'}</button></li>`;
   const dismissedList = leavesAll().filter(e => e.dismissed);
   els.pLeaves.innerHTML = (lv.length ? lv.map(e => row(e, false)).join('') : '<li class="none">なし — 子の無い到達ページはありません</li>')
     + (showDismissed ? dismissedList.map(e => row(e, true)).join('') : '');
@@ -1796,7 +1844,7 @@ function render() {
       <div class="entry-head">
         <span class="caseno">No.${no}</span>
         ${isRootCard ? `<span class="site">起点: ${esc(site)}</span>` : site ? `<span class="site">${esc(site)} の糸</span>` : ''}
-        ${hubParent ? `<span class="from">⇱ <a href="#" data-jump="${hubParent.id}">${esc(hubParent.hitTitle || hubParent.hitUrl || hubParent.keyword)}</a> から切り離し</span>` : first.hub ? '<span class="from">⇱ 切り離し（元の記録なし）</span>' : ''}
+        ${hubParent ? `<span class="from">⇱ <a href="#" data-jump="${hubParent.id}">${esc(hubParent.hitTitle || hubParent.hitUrl || safeKw(hubParent))}</a> から切り離し</span>` : first.hub ? '<span class="from">⇱ 切り離し（元の記録なし）</span>' : ''}
         <span class="chainlen">${label}</span>
       </div>
       ${shared ? `<div class="shared-source"><div class="lbl">出典</div><div>${linkOrText(first.sourceText, first.sourceUrl)}</div></div>` : ''}
