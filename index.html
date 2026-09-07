@@ -788,10 +788,9 @@ function urlAt(text, pos) {
 }
 function linkOrText(text, url) {
   if (!text && !url) return `<div class="val empty-val">未記入</div>`;
-  const label = esc(text || url);
-  const main = url ? `<a href="${esc(url)}" target="_blank" rel="noopener">${label}</a>` : label;
-  const sub = (url && text) ? `<div class="url">${esc(url)}</div>` : '';
-  return `<div class="val">${main}</div>${sub}`;
+  const label = esc(text || url.replace(/^https?:\/\//, ''));
+  const main = url ? `<a href="${esc(url)}" target="_blank" rel="noopener" title="${esc(url)}">${label}</a>` : label;
+  return `<div class="val">${main}</div>`;
 }
 const entriesRef = () => collection(db, 'cases', caseId, 'entries');
 const notesRef = () => collection(db, 'cases', caseId, 'notes');
