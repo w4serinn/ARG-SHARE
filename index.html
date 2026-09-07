@@ -259,7 +259,7 @@
     padding: 14px 18px 12px 18px; margin-bottom: 12px; box-shadow: 0 6px 14px rgba(0,0,0,.3);
   }
   .key .row { display: grid; grid-template-columns: minmax(180px, 1fr) 1.2fr 1.2fr; gap: 14px; align-items: start; }
-  .key .pw { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .pw { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
   .key .pw code {
     font-family: var(--type); font-weight: 700; font-size: 15px; background: #F7EFD9; border: 1px solid var(--ink-soft);
     padding: 2px 10px; border-radius: 2px; overflow-wrap: anywhere;
@@ -286,6 +286,87 @@
   .redact.revealed { cursor: default; }
   .key .how.redact { padding: 4px 8px; border-radius: 2px; min-height: 28px; }
   .key .pw { min-height: 30px; }
+
+  /* ---------- 同じ出典でまとめたカード ---------- */
+  .shared-source { display: grid; grid-template-columns: auto 1fr; gap: 12px; align-items: start; padding: 8px 0 10px; border-bottom: 1px solid var(--manila-line); margin-bottom: 4px; }
+  .shared-source .lbl { font-family: var(--type); font-size: 11px; letter-spacing: .1em; color: var(--ink-soft); padding-top: 3px; }
+  .shared-source .val { font-size: 14px; overflow-wrap: anywhere; }
+  .shared-source .url { font-family: var(--type); font-size: 11px; color: var(--ink-soft); overflow-wrap: anywhere; }
+  .step .same-source { font-size: 13px; color: var(--ink-soft); }
+
+  .from-above .auto { font-size: 11px; color: var(--ink-soft); margin-left: 4px; }
+  .children .hop.implicit::before { background: repeating-linear-gradient(90deg, var(--thread) 0 3px, transparent 3px 6px); }
+
+  /* ---------- 空振り ---------- */
+  .quick-miss { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin: -12px 0 22px; padding: 10px 14px; background: rgba(239,227,196,.12); border: 1px dashed var(--manila-line); border-radius: 2px; color: var(--manila); }
+  .quick-miss label { margin: 0; color: var(--manila-deep); white-space: nowrap; }
+  .quick-miss input { flex: 1; min-width: 180px; color: var(--manila); border-bottom-color: var(--manila-line); font-family: var(--type); }
+  .quick-miss input::placeholder { color: var(--manila-deep); opacity: .7; }
+  .quick-miss .miss-count { font-family: var(--type); font-size: 12px; letter-spacing: .06em; opacity: .85; cursor: pointer; text-decoration: underline; text-decoration-color: var(--manila-line); }
+  .quick-warn { flex-basis: 100%; font-size: 13px; color: #E2A59E; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .quick-warn:empty { display: none; }
+  .misses { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 10px; }
+  .miss { background: var(--manila); border: 1px solid var(--manila-line); border-radius: 2px; padding: 10px 14px 8px; box-shadow: 0 4px 10px rgba(0,0,0,.28); }
+  .miss .word { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .miss .word code { font-family: var(--type); font-weight: 700; font-size: 14px; text-decoration: line-through; text-decoration-color: var(--ink-soft); overflow-wrap: anywhere; }
+  .miss .memo-in { width: 100%; border: none; border-bottom: 1px dashed var(--manila-line); background: transparent; font-size: 13px; padding: 2px 0; margin-top: 4px; }
+  .dup.miss-only { color: var(--ink-soft); border-color: var(--ink-soft); background: rgba(42,36,32,.05); }
+
+  /* ---------- 単語帳 / 残量パネル ---------- */
+  .quick-miss .btn.small { white-space: nowrap; }
+  .quick-warn .cand { color: var(--manila-deep); }
+  .words-section { margin-bottom: 28px; }
+  .words-head { display: flex; align-items: baseline; gap: 12px; color: var(--manila); font-family: var(--type); font-weight: 700; font-size: 13px; letter-spacing: .1em; margin-bottom: 10px; }
+  .words-head .n { color: #E2A59E; }
+  .words-head input { margin-left: auto; width: auto; min-width: 160px; color: var(--manila); border-bottom-color: var(--manila-line); font-family: var(--sans); font-weight: 400; letter-spacing: 0; }
+  .words-head input::placeholder { color: var(--manila-deep); opacity: .7; }
+  .miss.cand .word code { text-decoration: none; }
+  .panel { background: rgba(239,227,196,.08); border: 1px solid var(--manila-line); border-radius: 2px; margin-bottom: 22px; color: var(--manila); }
+  .panel-head { display: flex; align-items: center; gap: 14px; padding: 8px 14px; cursor: pointer; font-family: var(--type); font-weight: 700; font-size: 12px; letter-spacing: .1em; user-select: none; }
+  .panel-head .badge { background: var(--manila); color: var(--ink); border-radius: 10px; padding: 0 8px; font-size: 11px; margin-left: 4px; }
+  .panel-head .badge.zero { background: transparent; color: var(--manila-deep); border: 1px solid var(--manila-line); }
+  .panel-head .chev { margin-left: auto; opacity: .7; }
+  .panel-body { display: grid; grid-template-columns: 1fr 1fr; gap: 0; border-top: 1px solid var(--manila-line); }
+  .panel-body[hidden] { display: none; }
+  .panel-col { padding: 10px 14px; }
+  .panel-col + .panel-col { border-left: 1px solid var(--manila-line); }
+  .panel-col h4 { margin: 0 0 6px; font-family: var(--type); font-size: 11px; letter-spacing: .1em; color: var(--manila-deep); font-weight: 700; }
+  .panel-col ul { list-style: none; margin: 0; padding: 0; max-height: 220px; overflow: auto; }
+  .panel-col li { display: flex; gap: 8px; align-items: baseline; padding: 3px 0; border-bottom: 1px dashed rgba(201,184,140,.35); font-size: 13px; cursor: pointer; }
+  .panel-col li:hover { color: #fff; }
+  .panel-col li .w { font-family: var(--type); font-weight: 700; overflow-wrap: anywhere; }
+  .panel-col li .sub { color: var(--manila-deep); font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; min-width: 0; }
+  .panel-col li .meta { font-family: var(--type); font-size: 10px; color: var(--manila-deep); white-space: nowrap; }
+  .panel-col .none { color: var(--manila-deep); font-size: 12px; font-style: italic; }
+  .panel-col .verdict { margin-top: 6px; font-size: 12px; color: var(--manila-deep); }
+  @media (max-width: 720px) { .panel-body { grid-template-columns: 1fr; } .panel-col + .panel-col { border-left: none; border-top: 1px solid var(--manila-line); } }
+
+  /* ---------- 経路の種類 ---------- */
+  .kwbox .ti { font-family: var(--type); font-weight: 700; font-size: 11px; letter-spacing: .08em; color: var(--ink-soft); margin-right: 6px; }
+  .entry.root-card { border-left: 4px solid var(--thread); }
+  .entry.root-card::after { content: ""; position: absolute; top: -7px; left: 22px; width: 14px; height: 14px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #E2665A, var(--pin) 60%, #7E1F17); box-shadow: 0 2px 3px rgba(0,0,0,.4); }
+  .entry-head .site { color: var(--ink); background: var(--manila-deep); padding: 0 8px; border-radius: 2px; }
+  .step .entrance { font-size: 13px; color: var(--thread); font-family: var(--type); font-weight: 700; letter-spacing: .08em; }
+  .type-help { font-size: 12px; color: var(--ink-soft); margin-top: 4px; }
+
+  /* ---------- 現場一覧 ---------- */
+  .map-wrap { overflow-x: auto; background: var(--manila); border: 1px solid var(--manila-line); border-radius: 2px; box-shadow: 0 8px 18px rgba(0,0,0,.35); }
+  table.map { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 720px; }
+  table.map th { font-family: var(--type); font-weight: 700; font-size: 11px; letter-spacing: .1em; color: var(--ink-soft); text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--ink-soft); white-space: nowrap; }
+  table.map th.num, table.map td.num { text-align: right; font-family: var(--type); }
+  table.map td { padding: 8px 12px; border-bottom: 1px dashed var(--manila-line); vertical-align: top; }
+  table.map tr.row { cursor: pointer; }
+  table.map tr.row:hover td { background: rgba(42,36,32,.05); }
+  table.map td .t { font-weight: 600; }
+  table.map td .u { font-family: var(--type); font-size: 11px; color: var(--ink-soft); overflow-wrap: anywhere; }
+  table.map td .u a { color: var(--ink-soft); }
+  table.map .routes { font-family: var(--type); font-size: 11px; color: var(--ink-soft); white-space: nowrap; }
+  table.map .flag { display: inline-block; font-family: var(--type); font-weight: 700; font-size: 10px; letter-spacing: .1em; border: 1.5px solid currentColor; border-radius: 3px; padding: 0 5px; margin-right: 4px; transform: rotate(-3deg); }
+  table.map .flag.frontier { color: var(--thread); }
+  table.map .flag.merge { color: var(--ok); }
+  table.map .flag.root { color: var(--ink); }
+  .map-summary { display: flex; gap: 16px; flex-wrap: wrap; color: var(--manila-deep); font-family: var(--type); font-size: 12px; letter-spacing: .06em; margin: 0 0 12px; }
+  .map-summary b { color: var(--manila); }
 </style>
 </head>
 <body>
@@ -337,37 +418,51 @@
     <button class="tab active" data-tab="records" type="button">RECORDS — 記録<span class="n" id="tabRecN"></span></button>
     <button class="tab" data-tab="notes" type="button">NOTES — メモ<span class="n" id="tabNoteN"></span></button>
     <button class="tab" data-tab="keys" type="button">PASSWORDS — 鍵束<span class="n" id="tabKeyN"></span></button>
+    <button class="tab" data-tab="misses" type="button">WORDS — 単語帳<span class="n" id="tabMissN"></span></button>
+    <button class="tab" data-tab="map" type="button">SITES — 現場一覧<span class="n" id="tabMapN"></span></button>
   </div>
 
   <div id="tabRecords">
   <section class="card" id="formCard">
     <h2 id="formTitle">NEW RECORD — 記録を追加</h2>
     <div class="grid">
-      <div class="full">
-        <label for="parent">つながる元の記録（このヒットページから見つけた場合）</label>
+      <div>
+        <label for="type">経路の種類</label>
+        <select id="type">
+          <option value="search">検索 — 作中の検索窓で</option>
+          <option value="link">リンク — ページ内のリンクを踏んで</option>
+          <option value="key">パスワード — 鍵を入れて扉を開けた</option>
+          <option value="guess">推測 — URLや隠しページを当てた</option>
+          <option value="root">起点 — ARGの入口サイト</option>
+        </select>
+        <div class="type-help" id="typeHelp"></div>
+      </div>
+      <div></div>
+      <div class="full" id="parentRow">
+        <label for="parent">つながる元の記録（この到達ページから見つけた場合）</label>
         <select id="parent"><option value="">なし（新しい起点）</option></select>
         <div class="parent-note" id="parentNote" hidden></div>
       </div>
       <div class="full">
-        <label for="keyword">検索ワード</label>
+        <label for="keyword" id="keywordLabel">検索ワード</label>
         <input type="text" id="keyword" class="kw" placeholder="実際に検索した文字列をそのまま">
         <div class="dup" id="dup"></div>
       </div>
-      <div>
+      <div class="src-row">
         <label for="sourceText">出典（どこで見つけたか）</label>
         <input type="text" id="sourceText" list="sourceList" placeholder="例: 動画 #3 の 2:14 に映る張り紙">
         <datalist id="sourceList"></datalist>
       </div>
-      <div>
+      <div class="src-row">
         <label for="sourceUrl">出典URL（任意）</label>
         <input type="url" id="sourceUrl" placeholder="https://">
       </div>
       <div>
-        <label for="hitTitle">ヒットしたページ</label>
+        <label for="hitTitle" id="hitTitleLabel">到達したページ</label>
         <input type="text" id="hitTitle" placeholder="ページ名や見出し">
       </div>
       <div>
-        <label for="hitUrl">ヒットページURL</label>
+        <label for="hitUrl">到達ページURL</label>
         <input type="url" id="hitUrl" placeholder="https://">
       </div>
       <div>
@@ -390,6 +485,28 @@
     <p class="hint">Ctrl/⌘ + Enter でも保存できます。「次を辿る」を押すと、そのヒットページにつながる記録として同じカードに連なります。</p>
   </section>
 
+  <div class="quick-miss" data-quick></div>
+
+  <div class="panel" id="panel">
+    <div class="panel-head" id="panelHead">
+      <span>残量 — REMAINING</span>
+      <span>先端<span class="badge" id="pLeafN">0</span></span>
+      <span>怪しい単語<span class="badge" id="pCandN">0</span></span>
+      <span class="chev" id="panelChev">▾</span>
+    </div>
+    <div class="panel-body" id="panelBody">
+      <div class="panel-col">
+        <h4>先端 — 子の無いヒットページ（放置が古い順）</h4>
+        <ul id="pLeaves"></ul>
+      </div>
+      <div class="panel-col">
+        <h4>怪しい単語 — まだ検索していない語</h4>
+        <ul id="pCands"></ul>
+        <div class="verdict" id="pVerdict"></div>
+      </div>
+    </div>
+  </div>
+
   <div class="filters">
     <input type="text" id="q" placeholder="記録を探す">
     <select id="fStatus">
@@ -398,13 +515,14 @@
       <option value="hit">確認済</option>
       <option value="miss">手詰まり</option>
     </select>
+    <select id="fSite"><option value="">すべての起点</option></select>
     <span class="count" id="count"></span>
   </div>
 
   <ol class="trail" id="trail"></ol>
   <div class="empty" id="empty" hidden>
     <strong>まだ手がかりがありません。</strong><br>
-    最初に検索した言葉と、その出どころを上の書類から記録してください。
+    まず経路の種類を「起点」にして、ARGの入口サイトを登録してください。
   </div>
   </div>
 
@@ -413,6 +531,7 @@
       <span>思いついたこと、未確認の手がかり、役割分担など、何でも。付箋ごとに別々に保存されるので、同時に書いてもぶつかりません。本文の URL は Ctrl（⌘）+クリックで開けます。</span>
       <button class="btn" id="btnAddNote">付箋を足す</button>
     </div>
+    <div class="quick-miss" data-quick></div>
     <ul class="notes" id="notes"></ul>
     <div class="empty" id="notesEmpty" hidden><strong>まだ付箋がありません。</strong></div>
     <div class="done-bar" id="doneBar" hidden>
@@ -464,6 +583,59 @@
     <ul class="keys" id="keys"></ul>
     <div class="empty" id="keysEmpty" hidden><strong>まだ鍵がありません。</strong><br>見つけたパスワードと、その入手経路を上の書類から記録してください。パスワードと入手経路は黒塗りで表示され、各自がクリックしたときだけ開示されます。</div>
   </div>
+
+  <div id="tabMap" hidden>
+    <div class="map-summary" id="mapSummary"></div>
+    <div class="filters">
+      <input type="text" id="mapQ" placeholder="ページを探す">
+      <select id="mapSite"><option value="">すべての起点</option></select>
+      <select id="mapSort">
+        <option value="frontier">未開拓を上に</option>
+        <option value="merge">合流を上に</option>
+        <option value="in">入る経路が多い順</option>
+        <option value="site">起点・URL順</option>
+        <option value="recent">到達が新しい順</option>
+      </select>
+      <span class="count" id="mapCount"></span>
+    </div>
+    <div class="map-wrap">
+      <table class="map">
+        <thead><tr><th>ページ</th><th>起点</th><th class="num">入</th><th class="num">出</th><th>到達経路</th><th>初到達</th></tr></thead>
+        <tbody id="mapBody"></tbody>
+      </table>
+    </div>
+    <div class="empty" id="mapEmpty" hidden><strong>まだ到達したページがありません。</strong></div>
+    <p class="hint" style="color:var(--manila-deep);margin-top:10px">「入」はそのページに辿り着いた記録の本数、「出」はそのページを出典にして伸びた記録の本数。出が0なら未開拓、入が2以上なら別ルートから合流したページです。行を押すと最初の記録へ移動します。</p>
+  </div>
+
+  <div id="tabMisses" hidden>
+    <section class="card">
+      <h2>WORDS — 単語帳にまとめて登録</h2>
+      <div class="grid">
+        <div class="full">
+          <label for="mWords">単語（1行に1語。まとめて貼り付け可）</label>
+          <textarea id="mWords" placeholder="高峯町&#10;高峯 町&#10;たかみね"></textarea>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button class="btn" id="btnCandSave">怪しい単語として登録</button>
+        <button class="btn primary" id="btnMissSave">空振りとして登録</button>
+      </div>
+      <div class="err" id="mErr"></div>
+    </section>
+
+    <div class="words-section">
+      <div class="words-head"><span>SUSPECTS — 怪しい単語</span><span class="n" id="candCountHead"></span><input type="text" id="cq" placeholder="怪しい単語を探す"></div>
+      <ul class="misses" id="cands"></ul>
+      <div class="empty" id="candsEmpty" hidden><strong>怪しい単語はありません。</strong><br>気になる語を見つけたら、記録タブか付箋タブの一行フォームから放り込んでください。</div>
+    </div>
+
+    <div class="words-section">
+      <div class="words-head"><span>MISSES — 空振り</span><span class="n" id="mCount"></span><input type="text" id="mq" placeholder="空振りを探す"></div>
+      <ul class="misses" id="misses"></ul>
+      <div class="empty" id="missesEmpty" hidden><strong>まだ空振りがありません。</strong></div>
+    </div>
+  </div>
   </div>
 </div>
 <div class="toast" id="toast"></div>
@@ -488,13 +660,21 @@ const firebaseConfig = {
 // ======================================================================
 
 const STATUS_LABEL = { open: '調査中', hit: '確認済', miss: '手詰まり' };
+const TYPE = {
+  search: { label: '検索',   mark: '検索',  kwLabel: '検索ワード',           ph: '作中の検索窓に入れた文字列をそのまま', help: '重複警告と単語帳の照合は、この種類だけが対象です。' },
+  link:   { label: 'リンク', mark: 'リンク', kwLabel: 'リンクの場所・文言',     ph: '例: フッターの白文字「about」/ 写真のクリック領域', help: 'ページ内の遷移。どこを押したかを残します。' },
+  key:    { label: '鍵',     mark: '鍵',    kwLabel: '使ったパスワード',       ph: '入力したパスワード（鍵束にも登録しておくと便利）', help: '扉を開けた記録。パスワードそのものは鍵束で管理。' },
+  guess:  { label: '推測',   mark: '推測',  kwLabel: '推測したURL・操作',      ph: '例: /admin を直打ち / 画像ファイル名の連番を試した', help: '検索でもリンクでもない到達。' },
+  root:   { label: '起点',   mark: '起点',  kwLabel: 'サイトの呼び名',         ph: '例: 本編サイト / 関係者のまとめサイト', help: 'ARGの入口。出典はなく、到達ページに入口のURLを入れます。' }
+};
+const typeOf = e => TYPE[e.type] ? e.type : 'search';
 const LS_KEY = 'arg-case-session';
 
 const $ = id => document.getElementById(id);
 const els = {
   gate: $('gate'), desk: $('desk'), tools: $('tools'), conn: $('conn'), subline: $('subline'),
   gPass: $('gPass'), gName: $('gName'), gErr: $('gErr'), btnOpen: $('btnOpen'), gIdBox: $('gIdBox'),
-  parent: $('parent'), parentNote: $('parentNote'), status: $('status'),
+  parent: $('parent'), parentNote: $('parentNote'), status: $('status'), type: $('type'), typeHelp: $('typeHelp'), keywordLabel: $('keywordLabel'), parentRow: $('parentRow'), fSite: $('fSite'),
   keyword: $('keyword'), sourceText: $('sourceText'), sourceUrl: $('sourceUrl'),
   hitTitle: $('hitTitle'), hitUrl: $('hitUrl'), memo: $('memo'),
   save: $('btnSave'), cancel: $('btnCancel'), formTitle: $('formTitle'),
@@ -502,6 +682,10 @@ const els = {
   trail: $('trail'), empty: $('empty'), count: $('count'), toast: $('toast'), sourceList: $('sourceList'),
   kPw: $('kPw'), kStatus: $('kStatus'), kTarget: $('kTarget'), kTargetUrl: $('kTargetUrl'), kHow: $('kHow'),
   keySave: $('btnKeySave'), keyCancel: $('btnKeyCancel'), keyFormTitle: $('keyFormTitle'), kq: $('kq'), keys: $('keys'), keysEmpty: $('keysEmpty'), kCount: $('kCount'), tabKeyN: $('tabKeyN'),
+  mWords: $('mWords'), mErr: $('mErr'), mq: $('mq'), misses: $('misses'), missesEmpty: $('missesEmpty'), mCount: $('mCount'), tabMissN: $('tabMissN'),
+  cq: $('cq'), cands: $('cands'), candsEmpty: $('candsEmpty'), candCountHead: $('candCountHead'),
+  mapQ: $('mapQ'), mapSite: $('mapSite'), mapSort: $('mapSort'), mapCount: $('mapCount'), mapBody: $('mapBody'), mapEmpty: $('mapEmpty'), mapSummary: $('mapSummary'), tabMapN: $('tabMapN'),
+  pLeafN: $('pLeafN'), pCandN: $('pCandN'), pLeaves: $('pLeaves'), pCands: $('pCands'), pVerdict: $('pVerdict'), panelBody: $('panelBody'), panelChev: $('panelChev'),
   dup: $('dup'), notes: $('notes'), notesDone: $('notesDone'), notesEmpty: $('notesEmpty'), doneBar: $('doneBar'), doneLabel: $('doneLabel'), tabRecN: $('tabRecN'), tabNoteN: $('tabNoteN')
 };
 
@@ -512,6 +696,8 @@ let editingId = null;
 let unsubscribe = null, unsubNotes = null;
 let notes = [];
 let keys = [], editingKeyId = null, unsubKeys = null;
+let misses = [], unsubMisses = null;
+let cands = [], unsubCands = null;
 const revealed = new Set(); // 'pw:id' / 'how:id' — 自分の画面でだけ開示
 const noteState = new Map(); // id -> { dirty, timer }
 let showDone = false, reorderPending = false;
@@ -520,7 +706,23 @@ let showDone = false, reorderPending = false;
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmtDate = iso => iso ? new Date(iso).toLocaleString('ja-JP', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }) : '';
 const byId = id => entries.find(e => e.id === id);
-const childrenOf = id => entries.filter(e => e.parentId === id).sort((a, b) => (a.createdAt || '').localeCompare(b.createdAt || ''));
+// 実効的な親: 明示的な parentId、なければ「出典URL == 他の記録のヒットURL」で自動連結
+let parentOf = new Map();  // id -> parentId
+function computeParents() {
+  const m = new Map();
+  entries.forEach(e => { if (e.parentId && byId(e.parentId) && e.parentId !== e.id) m.set(e.id, e.parentId); });
+  const isAncestor = (anc, id) => { let cur = id, guard = 0; while (m.has(cur) && guard++ < 1000) { cur = m.get(cur); if (cur === anc) return true; } return false; };
+  const byHit = new Map();
+  entries.forEach(e => { const k = norm(e.hitUrl); if (k) { if (!byHit.has(k)) byHit.set(k, []); byHit.get(k).push(e); } });
+  entries.filter(e => !m.has(e.id)).sort((a, b) => (a.createdAt || '').localeCompare(b.createdAt || '')).forEach(e => {
+    const k = norm(e.sourceUrl); if (!k) return;
+    const cands = (byHit.get(k) || []).filter(c => c.id !== e.id && !isAncestor(e.id, c.id))
+      .sort((a, b) => (a.createdAt || '').localeCompare(b.createdAt || ''));
+    if (cands.length) m.set(e.id, cands[0].id);
+  });
+  parentOf = m;
+}
+const childrenOf = id => entries.filter(e => parentOf.get(e.id) === id).sort((a, b) => (a.createdAt || '').localeCompare(b.createdAt || ''));
 const descendants = id => childrenOf(id).flatMap(c => [c, ...descendants(c.id)]);
 const labelOf = e => (e.hitTitle || e.hitUrl || `「${e.keyword}」のヒットページ`);
 let toastTimer;
@@ -552,6 +754,9 @@ function linkOrText(text, url) {
 const entriesRef = () => collection(db, 'cases', caseId, 'entries');
 const notesRef = () => collection(db, 'cases', caseId, 'notes');
 const keysRef = () => collection(db, 'cases', caseId, 'keys');
+const missesRef = () => collection(db, 'cases', caseId, 'misses');
+const candsRef = () => collection(db, 'cases', caseId, 'candidates');
+const listRef = kind => kind === 'cand' ? candsRef() : missesRef();
 const KEY_STATUS = { ok: '通った', try: '未確認', ng: '弾かれた' };
 const norm = v => String(v || '').normalize('NFKC').trim().toLowerCase();
 
@@ -617,10 +822,24 @@ function enterDesk() {
       .sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
     renderKeys();
   }, err => { console.error(err); toast('鍵束を読み込めません: ' + (err.code || err.message)); });
+  if (unsubMisses) unsubMisses();
+  unsubMisses = onSnapshot(missesRef(), snap => {
+    misses = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+      .sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
+    renderWords(); checkDup(); checkQuickAll(); renderPanel();
+  }, err => { console.error(err); toast('空振りを読み込めません: ' + (err.code || err.message)); });
+  if (unsubCands) unsubCands();
+  unsubCands = onSnapshot(candsRef(), snap => {
+    cands = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+      .sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
+    renderWords(); checkDup(); checkQuickAll(); renderPanel();
+  }, err => { console.error(err); toast('怪しい単語を読み込めません: ' + (err.code || err.message)); });
   resetForm(); resetKeyForm();
   els.keyword.focus();
 }
 function leave() {
+  if (unsubMisses) unsubMisses(); unsubMisses = null; misses = []; els.misses.innerHTML = '';
+  if (unsubCands) unsubCands(); unsubCands = null; cands = []; els.cands.innerHTML = '';
   if (unsubKeys) unsubKeys(); unsubKeys = null; keys = []; els.keys.innerHTML = '';
   if (unsubscribe) unsubscribe(); unsubscribe = null;
   if (unsubNotes) unsubNotes(); unsubNotes = null;
@@ -649,15 +868,27 @@ function updateParentNote() {
   if (p) els.parentNote.textContent = `↳ ${labelOf(p)} からの連鎖として記録します`;
 }
 function readForm() {
+  const type = els.type.value;
   return {
-    status: els.status.value, parentId: els.parent.value || null,
+    type, status: els.status.value, parentId: type === 'root' ? null : (els.parent.value || null),
     keyword: els.keyword.value.trim(),
     sourceText: els.sourceText.value.trim(), sourceUrl: els.sourceUrl.value.trim(),
     hitTitle: els.hitTitle.value.trim(), hitUrl: els.hitUrl.value.trim(),
     memo: els.memo.value.trim()
   };
 }
+function applyType() {
+  const t = TYPE[els.type.value] || TYPE.search;
+  els.keywordLabel.textContent = t.kwLabel;
+  els.keyword.placeholder = t.ph;
+  els.typeHelp.textContent = t.help;
+  const isRoot = els.type.value === 'root';
+  els.parentRow.hidden = isRoot;
+  document.querySelectorAll('.src-row').forEach(el => el.hidden = isRoot);
+  els.dup.classList.toggle('show', !isRoot && els.dup.innerHTML !== '' && els.type.value === 'search');
+}
 function fillForm(e) {
+  els.type.value = TYPE[e.type] ? e.type : 'search'; applyType();
   els.status.value = e.status || 'open';
   els.parent.value = e.parentId || ''; updateParentNote();
   els.keyword.value = e.keyword || '';
@@ -676,18 +907,29 @@ function resetForm() {
 }
 function duplicatesOf(kw) {
   const k = norm(kw); if (!k) return [];
-  return entries.filter(e => e.id !== editingId && norm(e.keyword) === k)
+  return entries.filter(e => e.id !== editingId && typeOf(e) === 'search' && norm(e.keyword) === k)
     .sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
 }
+const missesOf = kw => { const k = norm(kw); return k ? misses.filter(m => norm(m.word) === k) : []; };
 function checkDup() {
+  if (els.type.value !== 'search') { els.dup.classList.remove('show'); els.dup.innerHTML = ''; return; }
   const dups = duplicatesOf(els.keyword.value);
-  els.dup.classList.toggle('show', dups.length > 0);
-  if (!dups.length) { els.dup.innerHTML = ''; return; }
-  const d = dups[0];
-  els.dup.innerHTML = `⚠ 同じワードの記録が ${dups.length} 件あります: ${esc(d.author || '名無し')} が ${fmtDate(d.createdAt)} に記録（${STATUS_LABEL[d.status] || '調査中'}）`
-    + `<button class="btn small" type="button" data-jump="${d.id}">その記録を見る</button>`;
+  const ms = missesOf(els.keyword.value);
+  els.dup.classList.toggle('show', dups.length + ms.length > 0);
+  els.dup.classList.toggle('miss-only', !dups.length && ms.length > 0);
+  if (!dups.length && !ms.length) { els.dup.innerHTML = ''; return; }
+  if (dups.length) {
+    const d = dups[0];
+    els.dup.innerHTML = `⚠ 同じワードの記録が ${dups.length} 件あります: ${esc(d.author || '名無し')} が ${fmtDate(d.createdAt)} に記録（${STATUS_LABEL[d.status] || '調査中'}）`
+      + `<button class="btn small" type="button" data-jump="${d.id}">その記録を見る</button>`;
+  } else {
+    const m = ms[0];
+    els.dup.innerHTML = `△ このワードは空振りにあります: ${esc(m.author || '名無し')} が ${fmtDate(m.createdAt)} に空振り${m.memo ? '（' + esc(m.memo) + '）' : ''}。保存すると空振りから外れます`;
+  }
 }
+const candsOf = kw => { const k = norm(kw); return k ? cands.filter(c => norm(c.word) === k) : []; };
 function jumpTo(id) {
+  showTab('records');
   els.q.value = ''; els.fStatus.value = ''; render();
   const el = els.trail.querySelector(`.hop[data-id="${id}"]`); if (!el) return;
   el.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -696,7 +938,7 @@ function jumpTo(id) {
 async function save() {
   const d = readForm();
   if (!d.keyword) { toast('検索ワードを入力してください。'); els.keyword.focus(); return; }
-  const dups = duplicatesOf(d.keyword);
+  const dups = d.type === 'search' ? duplicatesOf(d.keyword) : [];
   if (dups.length && !confirm(`「${d.keyword}」は既に ${dups.length} 件記録があります。\nそれでも追加しますか？（検索エンジン違いなど、意図があるならメモに残すのがおすすめ）`)) return;
   els.save.disabled = true;
   try {
@@ -705,7 +947,9 @@ async function save() {
       toast('更新しました');
     } else {
       await addDoc(entriesRef(), { ...d, author: nickname, createdAt: new Date().toISOString(), ts: serverTimestamp() });
-      toast(d.parentId ? '連鎖に追加しました' : '追加しました');
+      const ms = d.type === 'search' ? missesOf(d.keyword) : [], cs = d.type === 'search' ? candsOf(d.keyword) : [];
+      if (ms.length || cs.length) { const b = writeBatch(db); ms.forEach(m => b.delete(doc(missesRef(), m.id))); cs.forEach(c => b.delete(doc(candsRef(), c.id))); await b.commit(); }
+      toast(ms.length || cs.length ? '追加し、単語帳から外しました' : d.parentId ? '連鎖に追加しました' : '追加しました');
     }
     resetForm();
     els.keyword.focus();
@@ -725,6 +969,7 @@ function startEdit(id) {
 function useAsSource(id) {
   const e = byId(id); if (!e) return;
   resetForm();
+  els.type.value = 'search'; applyType();
   els.parent.value = e.id; updateParentNote();
   els.sourceText.value = e.hitTitle || e.hitUrl || '';
   els.sourceUrl.value = e.hitUrl || '';
@@ -734,14 +979,14 @@ function useAsSource(id) {
 }
 async function remove(id) {
   const e = byId(id); if (!e) return;
-  const kids = childrenOf(id);
+  const kids = childrenOf(id).filter(k => k.parentId === id);
   const msg = kids.length
     ? `「${e.keyword}」を削除しますか？\n続きの ${kids.length} 件は、ひとつ前の記録につなぎ直します。`
     : `「${e.keyword}」の記録を削除しますか？`;
   if (!confirm(msg)) return;
   try {
     const batch = writeBatch(db);
-    kids.forEach(k => batch.update(doc(entriesRef(), k.id), { parentId: e.parentId || null }));
+    kids.filter(k => k.parentId === id).forEach(k => batch.update(doc(entriesRef(), k.id), { parentId: e.parentId || null }));
     batch.delete(doc(entriesRef(), id));
     await batch.commit();
     if (editingId === id) resetForm();
@@ -753,23 +998,29 @@ async function remove(id) {
 function matches(e) {
   const q = els.q.value.trim().toLowerCase();
   const s = els.fStatus.value;
+  const site = els.fSite.value;
+  if (site && (siteNameOf(e) || '（起点なし）') !== site) return false;
   return (!s || e.status === s) &&
     (!q || [e.keyword, e.sourceText, e.sourceUrl, e.hitTitle, e.hitUrl, e.memo, e.author]
       .some(v => (v || '').toLowerCase().includes(q)));
 }
-function hopHtml(e, parent, matched) {
-  const sameAsParent = parent && (!e.sourceText || e.sourceText === parent.hitTitle || e.sourceText === parent.hitUrl);
-  const sourceCell = parent
-    ? `<div class="from-above">↑ 上のヒットページから</div>${sameAsParent ? '' : linkOrText(e.sourceText, e.sourceUrl)}`
+function hopHtml(e, parent, matched, sharedSource) {
+  const t = typeOf(e);
+  const implicit = parent && e.parentId !== parent.id;
+  const sameAsParent = parent && (implicit || !e.sourceText || e.sourceText === parent.hitTitle || e.sourceText === parent.hitUrl);
+  const sourceCell = t === 'root' ? `<div class="entrance">— 入口 —</div>`
+    : parent
+    ? `<div class="from-above">↑ 上の到達ページから${implicit ? '<span class="auto">（URL一致で自動連結）</span>' : ''}</div>${sameAsParent ? '' : linkOrText(e.sourceText, e.sourceUrl)}`
+    : sharedSource ? `<div class="same-source">↑ 上の出典から</div>`
     : linkOrText(e.sourceText, e.sourceUrl);
   return `
-    <div class="hop status-${esc(e.status || 'open')} ${matched ? '' : 'dim'}" data-id="${e.id}">
+    <div class="hop status-${esc(e.status || 'open')} ${matched ? '' : 'dim'} ${implicit ? 'implicit' : ''}" data-id="${e.id}">
       <div class="chain">
         <div class="step"><div class="lbl">出典</div>${sourceCell}</div>
         <div class="arrow" aria-hidden="true">→</div>
-        <div class="step"><div class="lbl">検索ワード</div><div class="val"><span class="kwbox">${esc(e.keyword)}</span></div></div>
+        <div class="step"><div class="lbl">${esc(TYPE[t].kwLabel)}</div><div class="val pw"><span class="kwbox"><span class="ti">${TYPE[t].mark}</span>${esc(e.keyword)}</span>${t === 'search' ? '<button class="btn small ghost" type="button" data-act="copy" title="コピー">コピー</button>' : ''}</div></div>
         <div class="arrow" aria-hidden="true">→</div>
-        <div class="step"><div class="lbl">ヒットページ</div>${linkOrText(e.hitTitle, e.hitUrl)}</div>
+        <div class="step"><div class="lbl">到達ページ</div>${linkOrText(e.hitTitle, e.hitUrl)}</div>
       </div>
       ${e.memo ? `<div class="memo">${linkify(e.memo)}</div>` : ''}
       <div class="hop-meta">
@@ -777,20 +1028,22 @@ function hopHtml(e, parent, matched) {
         ${e.author ? `<span class="who">by ${esc(e.author)}</span>` : ''}
         <span>${fmtDate(e.createdAt)}</span>
         <div class="actions">
-          <button class="btn small ghost" data-act="chain" title="このヒットページから続く記録を作る">↳ 次を辿る</button>
+          <button class="btn small ghost" data-act="chain" title="この到達ページから続く記録を作る">↳ 次を辿る</button>
           <button class="btn small ghost" data-act="edit">編集</button>
           <button class="btn small ghost danger" data-act="del">削除</button>
         </div>
       </div>
     </div>`;
 }
-function treeHtml(e, parent) {
+function treeHtml(e, parent, sharedSource) {
   const kids = childrenOf(e.id);
-  return hopHtml(e, parent, matches(e)) +
+  return hopHtml(e, parent, matches(e), sharedSource) +
     (kids.length ? `<div class="children">${kids.map(k => treeHtml(k, e)).join('')}</div>` : '');
 }
+function rootOf(e) { let cur = e, g = 0; while (parentOf.has(cur.id) && g++ < 1000) cur = byId(parentOf.get(cur.id)) || cur; return cur; }
+function siteNameOf(e) { const r = rootOf(e); return typeOf(r) === 'root' ? (r.keyword || r.hitTitle || r.hitUrl) : ''; }
 function roots() {
-  return entries.filter(e => !e.parentId || !byId(e.parentId))
+  return entries.filter(e => !parentOf.has(e.id))
     .sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
 }
 function sortedNotes() {
@@ -942,6 +1195,230 @@ async function removeNote(id) {
   try { await deleteDoc(doc(notesRef(), id)); noteState.delete(id); }
   catch (e) { console.error(e); toast('はがせませんでした: ' + (e.code || e.message)); }
 }
+// ---------- 単語帳（怪しい単語 / 空振り） ----------
+function splitWords(text) {
+  const seen = new Set(); const out = [];
+  text.split(/\r?\n/).map(w => w.trim()).filter(Boolean).forEach(w => { const k = norm(w); if (!seen.has(k)) { seen.add(k); out.push(w); } });
+  return out;
+}
+// kind: 'cand' | 'miss'。戻り値: 登録した語 / ヒット済みで弾いた語 / 既に同じ帳にあった語
+async function addWords(kind, words) {
+  const fresh = [], hit = [], already = [];
+  const other = kind === 'cand' ? missesOf : candsOf;
+  const same = kind === 'cand' ? candsOf : missesOf;
+  const b = writeBatch(db); let ops = 0;
+  words.forEach(w => {
+    if (duplicatesOf(w).length) { hit.push(w); return; }
+    if (same(w).length) { already.push(w); return; }
+    other(w).forEach(x => { b.delete(doc(listRef(kind === 'cand' ? 'miss' : 'cand'), x.id)); ops++; });  // 帳の間を移動
+    b.set(doc(listRef(kind)), { word: w, memo: '', author: nickname, createdAt: new Date().toISOString(), ts: serverTimestamp() }); ops++;
+    fresh.push(w);
+  });
+  if (ops) await b.commit();
+  return { fresh, hit, already };
+}
+async function moveWord(fromKind, id, toKind) {
+  const src = fromKind === 'cand' ? cands : misses;
+  const w = src.find(x => x.id === id); if (!w) return;
+  try {
+    const b = writeBatch(db);
+    b.delete(doc(listRef(fromKind), id));
+    (toKind === 'cand' ? candsOf : missesOf)(w.word).forEach(x => b.delete(doc(listRef(toKind), x.id)));
+    b.set(doc(listRef(toKind)), { word: w.word, memo: w.memo || '', author: nickname, createdAt: new Date().toISOString(), ts: serverTimestamp() });
+    await b.commit();
+    toast(toKind === 'miss' ? '空振りへ移しました' : '怪しい単語へ戻しました');
+  } catch (e) { console.error(e); toast('移せませんでした: ' + (e.code || e.message)); }
+}
+async function removeWord(kind, id) {
+  try { await deleteDoc(doc(listRef(kind), id)); } catch (e) { console.error(e); toast('外せませんでした: ' + (e.code || e.message)); }
+}
+async function saveWordMemo(kind, id, memo) {
+  const src = kind === 'cand' ? cands : misses;
+  const w = src.find(x => x.id === id); if (!w || (w.memo || '') === memo) return;
+  try { await updateDoc(doc(listRef(kind), id), { memo, updatedAt: new Date().toISOString(), updatedBy: nickname }); }
+  catch (e) { console.error(e); toast('メモを保存できませんでした: ' + (e.code || e.message)); }
+}
+function promoteWord(word) {
+  showTab('records');
+  resetForm();
+  els.type.value = 'search'; applyType();
+  els.keyword.value = word; checkDup();
+  $('formCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  els.sourceText.focus();
+  toast('記録として保存すると、単語帳から自動で外れます');
+}
+function renderWordList(kind, list, ul, emptyEl, q) {
+  const focusedEl = document.activeElement && document.activeElement.classList.contains('memo-in') ? document.activeElement : null;
+  const focused = focusedEl && ul.contains(focusedEl) ? focusedEl.closest('.miss').dataset.id : null;
+  const focusedVal = focused ? focusedEl.value : null;
+  emptyEl.hidden = list.length > 0;
+  const shown = list.filter(m => !q || [m.word, m.memo, m.author].some(v => (v || '').toLowerCase().includes(q)));
+  const moveBtn = kind === 'cand'
+    ? `<button class="btn small ghost" type="button" data-act="tomiss">空振りだった</button>`
+    : `<button class="btn small ghost" type="button" data-act="tocand">怪しいに戻す</button>`;
+  ul.innerHTML = shown.map(m => `
+    <li class="miss ${kind}" data-id="${m.id}" data-kind="${kind}">
+      <div class="word"><code>${esc(m.word)}</code><button class="btn small ghost" type="button" data-act="copy">コピー</button>
+        <span style="margin-left:auto;display:flex;gap:2px;flex-wrap:wrap"><button class="btn small ghost" type="button" data-act="promote">ヒットした</button>${moveBtn}<button class="btn small ghost danger" type="button" data-act="del">外す</button></span></div>
+      <input class="memo-in" type="text" placeholder="メモ（どこで見つけたか、どこで試したか）" value="${esc(m.id === focused ? focusedVal : (m.memo || ''))}">
+      <div class="hop-meta"><span class="who">${m.author ? 'by ' + esc(m.author) : ''}</span><span>${fmtDate(m.createdAt)}</span></div>
+    </li>`).join('');
+  if (list.length && !shown.length) ul.innerHTML = `<li class="empty">条件に合う語がありません。</li>`;
+  if (focused) { const el = ul.querySelector(`.miss[data-id="${focused}"] .memo-in`); if (el) { el.focus(); el.setSelectionRange(el.value.length, el.value.length); } }
+  return shown.length;
+}
+function renderWords() {
+  els.tabMissN.textContent = cands.length ? cands.length : '';
+  const c = renderWordList('cand', cands, els.cands, els.candsEmpty, els.cq.value.trim().toLowerCase());
+  const m = renderWordList('miss', misses, els.misses, els.missesEmpty, els.mq.value.trim().toLowerCase());
+  els.candCountHead.textContent = cands.length ? `${c} / ${cands.length} 語` : '';
+  els.mCount.textContent = misses.length ? `${m} / ${misses.length} 語` : '';
+  document.querySelectorAll('[data-quick] .miss-count').forEach(el => el.textContent = `怪しい ${cands.length} / 空振り ${misses.length}`);
+}
+async function saveWordsBulk(kind) {
+  const words = splitWords(els.mWords.value);
+  if (!words.length) { els.mWords.focus(); return; }
+  els.mErr.textContent = '';
+  try {
+    const r = await addWords(kind, words);
+    els.mWords.value = r.hit.join('\n');
+    const parts = [];
+    if (r.fresh.length) parts.push(`${r.fresh.length} 語を登録`);
+    if (r.already.length) parts.push(`${r.already.length} 語は登録済み`);
+    if (r.hit.length) { parts.push(`${r.hit.length} 語はヒット済みのため残しました`); els.mErr.textContent = 'ヒット済み: ' + r.hit.join(' / '); }
+    toast(parts.join('、'));
+  } catch (e) { console.error(e); toast('登録できませんでした: ' + (e.code || e.message)); }
+}
+
+// ---- 一行フォーム（記録タブ・付箋タブ共通） ----
+function mountQuickForms() {
+  document.querySelectorAll('[data-quick]').forEach(box => {
+    box.innerHTML = `<label>単語</label>
+      <input type="text" class="qword" autocomplete="off" placeholder="気になる語、または検索したが出なかった語（複数行を貼ると一括）">
+      <button class="btn small" type="button" data-kind="cand">怪しい単語に</button>
+      <button class="btn small" type="button" data-kind="miss">空振りに</button>
+      <span class="miss-count" title="単語帳を開く"></span>
+      <div class="quick-warn"></div>`;
+    const input = box.querySelector('.qword'), warn = box.querySelector('.quick-warn');
+    const check = () => {
+      const w = input.value.trim();
+      const d = w ? duplicatesOf(w) : [], m = w ? missesOf(w) : [], c = w ? candsOf(w) : [];
+      if (d.length) warn.innerHTML = `ヒット済みです（${esc(d[0].author || '名無し')} / ${fmtDate(d[0].createdAt)}）。単語帳には入れません。<button class="btn small" type="button" data-jump="${d[0].id}">その記録を見る</button>`;
+      else if (m.length) warn.textContent = `既に空振りにあります（${m[0].author || '名無し'} / ${fmtDate(m[0].createdAt)}）`;
+      else if (c.length) warn.innerHTML = `<span class="cand">既に怪しい単語にあります（${esc(c[0].author || '名無し')} / ${fmtDate(c[0].createdAt)}）。「空振りに」で移せます</span>`;
+      else warn.textContent = '';
+    };
+    box._check = check;
+    const submit = async kind => {
+      const words = splitWords(input.value);
+      if (!words.length) { input.focus(); return; }
+      try {
+        const r = await addWords(kind, words);
+        if (r.hit.length && !r.fresh.length) { check(); return; }
+        input.value = ''; warn.textContent = '';
+        toast(r.fresh.length ? `${kind === 'cand' ? '怪しい単語' : '空振り'} ${r.fresh.length} 語を登録しました` + (r.already.length ? `（${r.already.length} 語は登録済み）` : '') : 'すべて登録済みでした');
+      } catch (e) { console.error(e); toast('登録できませんでした: ' + (e.code || e.message)); }
+      input.focus();
+    };
+    input.addEventListener('input', check);
+    input.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); submit(e.shiftKey ? 'miss' : 'cand'); } });
+    input.addEventListener('paste', e => {
+      const t = (e.clipboardData || window.clipboardData).getData('text');
+      if (t && /\n/.test(t.trim())) { e.preventDefault(); input.value = t; }
+    });
+    box.querySelectorAll('button[data-kind]').forEach(b => b.addEventListener('click', () => submit(b.dataset.kind)));
+    box.querySelector('.miss-count').addEventListener('click', () => showTab('misses'));
+    warn.addEventListener('click', e => { const b = e.target.closest('[data-jump]'); if (b) jumpTo(b.dataset.jump); });
+  });
+}
+function checkQuickAll() { document.querySelectorAll('[data-quick]').forEach(b => b._check && b._check()); }
+
+// ---------- 現場一覧（ページ地図） ----------
+function buildPages() {
+  const pages = new Map(); // key -> page
+  const keyOf = e => norm(e.hitUrl) ? 'u:' + norm(e.hitUrl) : norm(e.hitTitle) ? 't:' + norm(e.hitTitle) : null;
+  entries.forEach(e => {
+    const k = keyOf(e); if (!k) return;
+    if (!pages.has(k)) pages.set(k, { key: k, title: '', url: '', arrivals: [], out: 0, sites: new Set(), types: {}, first: null, isRoot: false });
+    const pg = pages.get(k);
+    if (!pg.title && e.hitTitle) pg.title = e.hitTitle;
+    if (!pg.url && e.hitUrl) pg.url = e.hitUrl;
+    pg.arrivals.push(e);
+    const t = typeOf(e); pg.types[t] = (pg.types[t] || 0) + 1;
+    if (t === 'root') pg.isRoot = true;
+    const sn = siteNameOf(e); if (sn) pg.sites.add(sn);
+    if (!pg.first || (e.createdAt || '') < (pg.first.createdAt || '')) pg.first = e;
+  });
+  // 出: そのページ（の記録）を親に持つ記録
+  entries.forEach(e => {
+    const pid = parentOf.get(e.id); if (!pid) return;
+    const parent = byId(pid); if (!parent) return;
+    const k = keyOf(parent); if (k && pages.has(k)) pages.get(k).out++;
+  });
+  return [...pages.values()];
+}
+function renderMap() {
+  if (!caseId) return;
+  const all = buildPages();
+  els.tabMapN.textContent = all.length || '';
+  els.mapEmpty.hidden = all.length > 0;
+  {
+    const names = [...new Set(all.flatMap(p => p.sites.size ? [...p.sites] : ['（起点なし）']))].sort();
+    const cur = els.mapSite.value;
+    els.mapSite.innerHTML = '<option value="">すべての起点</option>' + names.map(n => `<option value="${esc(n)}">${esc(n)}</option>`).join('');
+    if (names.includes(cur)) els.mapSite.value = cur;
+  }
+  const q = els.mapQ.value.trim().toLowerCase(), site = els.mapSite.value, sort = els.mapSort.value;
+  let list = all.filter(p =>
+    (!site || (p.sites.size ? p.sites.has(site) : site === '（起点なし）')) &&
+    (!q || [p.title, p.url, ...p.arrivals.map(a => a.keyword)].some(v => (v || '').toLowerCase().includes(q))));
+  const siteKey = p => ([...p.sites].sort()[0] || '～') + ' ' + (p.url || p.title);
+  const cmp = {
+    frontier: (a, b) => (a.out - b.out) || (b.arrivals.length - a.arrivals.length) || siteKey(a).localeCompare(siteKey(b)),
+    merge: (a, b) => (b.arrivals.length - a.arrivals.length) || (a.out - b.out) || siteKey(a).localeCompare(siteKey(b)),
+    in: (a, b) => (b.arrivals.length - a.arrivals.length) || siteKey(a).localeCompare(siteKey(b)),
+    site: (a, b) => siteKey(a).localeCompare(siteKey(b)),
+    recent: (a, b) => ((b.first && b.first.createdAt) || '').localeCompare((a.first && a.first.createdAt) || '')
+  }[sort] || cmp.frontier;
+  list.sort(cmp);
+  const frontier = all.filter(p => p.out === 0).length, merged = all.filter(p => p.arrivals.length >= 2).length;
+  els.mapSummary.innerHTML = `<span>ページ <b>${all.length}</b></span><span>未開拓 <b>${frontier}</b></span><span>合流 <b>${merged}</b></span>`;
+  els.mapCount.textContent = all.length ? `${list.length} / ${all.length} ページ` : '';
+  els.mapBody.innerHTML = list.map(p => {
+    const flags = (p.isRoot ? '<span class="flag root">起点</span>' : '') + (p.out === 0 ? '<span class="flag frontier">未開拓</span>' : '') + (p.arrivals.length >= 2 ? '<span class="flag merge">合流</span>' : '');
+    const routes = Object.entries(p.types).map(([t, n]) => `${TYPE[t].label}×${n}`).join(' ');
+    const sites = p.sites.size ? [...p.sites].map(esc).join(' / ') : '<span class="empty-val">—</span>';
+    return `<tr class="row" data-jump="${p.first.id}">
+      <td>${flags}<div class="t">${esc(p.title || p.url)}</div>${p.url && p.title ? `<div class="u"><a href="${esc(p.url)}" target="_blank" rel="noopener">${esc(p.url)}</a></div>` : ''}</td>
+      <td>${sites}</td>
+      <td class="num">${p.arrivals.length}</td>
+      <td class="num">${p.out}</td>
+      <td class="routes">${routes}</td>
+      <td class="routes">${esc(p.first.author || '')}<br>${fmtDate(p.first.createdAt)}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ---------- 残量パネル ----------
+let panelOpen = localStorage.getItem('arg-panel-open') !== '0';
+function leaves() {
+  return entries.filter(e => (e.hitUrl || e.hitTitle) && childrenOf(e.id).length === 0)
+    .sort((a, b) => (a.updatedAt || a.createdAt || '').localeCompare(b.updatedAt || b.createdAt || ''));
+}
+function renderPanel() {
+  if (!caseId) return;
+  const lv = leaves();
+  els.pLeafN.textContent = lv.length; els.pLeafN.classList.toggle('zero', !lv.length);
+  els.pCandN.textContent = cands.length; els.pCandN.classList.toggle('zero', !cands.length);
+  els.panelBody.hidden = !panelOpen; els.panelChev.textContent = panelOpen ? '▾' : '▸';
+  els.pLeaves.innerHTML = lv.length ? lv.map(e => `<li data-jump="${e.id}"><span class="w">${esc(e.keyword)}</span><span class="sub">→ ${esc(e.hitTitle || e.hitUrl)}</span><span class="meta">${esc(e.author || '')} ${fmtDate(e.updatedAt || e.createdAt)}</span></li>`).join('')
+    : '<li class="none">なし — 子の無いヒットページはありません</li>';
+  els.pCands.innerHTML = cands.length ? cands.map(c => `<li data-word="${esc(c.word)}"><span class="w">${esc(c.word)}</span><span class="sub">${esc(c.memo || '')}</span><span class="meta">${esc(c.author || '')}</span></li>`).join('')
+    : '<li class="none">なし</li>';
+  els.pVerdict.textContent = (!lv.length && !cands.length && entries.length)
+    ? '先端も怪しい単語も尽きています。記録を読み返して発想を変える番かもしれません。'
+    : '';
+}
 // ---------- 鍵束 ----------
 function readKeyForm() {
   return { pw: els.kPw.value.trim(), status: els.kStatus.value, target: els.kTarget.value.trim(),
@@ -1014,27 +1491,55 @@ function renderKeys() {
   if (keys.length && !shown.length) els.keys.innerHTML = `<li class="empty">条件に合う鍵がありません。</li>`;
 }
 function render() {
+  computeParents();
+  renderPanel();
+  renderMap();
   els.tabRecN.textContent = entries.length || '';
   checkDup();
   const sources = [...new Set(entries.flatMap(e => [e.sourceText, e.hitTitle]).filter(Boolean))].sort();
   els.sourceList.innerHTML = sources.map(s => `<option value="${esc(s)}">`).join('');
+  {
+    const names = [...new Set(entries.map(e => siteNameOf(e) || '（起点なし）'))].sort();
+    const cur = els.fSite.value;
+    els.fSite.innerHTML = '<option value="">すべての起点</option>' + names.map(n => `<option value="${esc(n)}">${esc(n)}</option>`).join('');
+    if (names.includes(cur)) els.fSite.value = cur;
+  }
   renderParentOptions(editingId);
 
   const rs = roots();
-  const visible = rs.filter(r => [r, ...descendants(r.id)].some(matches));
+  // 起点を「同じ出典」でまとめる（URLがあればURL、なければ出典テキストで判定）
+  const sourceKey = e => norm(e.sourceUrl) ? 'u:' + norm(e.sourceUrl) : norm(e.sourceText) ? 't:' + norm(e.sourceText) : 'id:' + e.id;
+  const groups = [];
+  const byKey = new Map();
+  rs.forEach(r => {
+    const k = sourceKey(r);
+    if (!byKey.has(k)) { const g = { key: k, roots: [] }; byKey.set(k, g); groups.push(g); }
+    byKey.get(k).roots.push(r);
+  });
+  groups.forEach(g => g.roots.sort((a, b) => (a.createdAt || '').localeCompare(b.createdAt || '')));  // カード内は古い順
+  const visible = groups.filter(g => g.roots.some(r => [r, ...descendants(r.id)].some(matches)));
   const matchedCount = entries.filter(matches).length;
-  els.count.textContent = entries.length ? `${matchedCount} / ${entries.length} 件 — ${visible.length} 本の糸` : '';
+  const threadCount = visible.reduce((a, g) => a + g.roots.length, 0);
+  els.count.textContent = entries.length ? `${matchedCount} / ${entries.length} 件 — ${threadCount} 本の糸 / ${visible.length} 枚` : '';
   els.empty.hidden = entries.length > 0;
-  els.trail.innerHTML = visible.map(r => {
-    const n = 1 + descendants(r.id).length;
-    const no = String(rs.length - rs.indexOf(r)).padStart(3, '0');
+  els.trail.innerHTML = visible.map(g => {
+    const n = g.roots.reduce((a, r) => a + 1 + descendants(r.id).length, 0);
+    const no = String(groups.length - groups.indexOf(g)).padStart(3, '0');
+    const shared = g.roots.length > 1;
+    const first = g.roots[0];
+    const label = shared ? `同じ出典から ${g.roots.length} 本の糸 / ${n} 件`
+      : n > 1 ? `${n} 段の連鎖` : `<span style="color:var(--ink-soft)">単独</span>`;
+    const isRootCard = typeOf(first) === 'root';
+    const site = siteNameOf(first);
     return `
-    <li class="entry">
+    <li class="entry ${isRootCard ? 'root-card' : ''}">
       <div class="entry-head">
         <span class="caseno">No.${no}</span>
-        ${n > 1 ? `<span class="chainlen">${n} 段の連鎖</span>` : `<span class="chainlen" style="color:var(--ink-soft)">単独</span>`}
+        ${isRootCard ? `<span class="site">起点: ${esc(site)}</span>` : site ? `<span class="site">${esc(site)} の糸</span>` : ''}
+        <span class="chainlen">${label}</span>
       </div>
-      ${treeHtml(r, null)}
+      ${shared ? `<div class="shared-source"><div class="lbl">出典</div><div>${linkOrText(first.sourceText, first.sourceUrl)}</div></div>` : ''}
+      ${g.roots.map(r => treeHtml(r, null, shared)).join('')}
     </li>`;
   }).join('');
   if (entries.length && !visible.length) {
@@ -1045,10 +1550,10 @@ function render() {
 // ---------- 書き出し / 読み込み ----------
 function toMarkdown() {
   const cell = v => String(v ?? '').replace(/\|/g, '\\|').replace(/\n/g, ' ');
-  const head = '| 段 | 検索ワード | 出典 | 出典URL | ヒットページ | ヒットURL | 状態 | 記録者 | メモ |\n|---|---|---|---|---|---|---|---|---|';
+  const head = '| 段 | 経路 | ワード/操作 | 出典 | 出典URL | 到達ページ | 到達URL | 状態 | 記録者 | メモ |\n|---|---|---|---|---|---|---|---|---|---|';
   const rows = [];
   const walk = (e, depth) => {
-    if (matches(e)) rows.push(`| ${depth} | \`${cell(e.keyword)}\` | ${cell(e.sourceText)} | ${cell(e.sourceUrl)} | ${cell(e.hitTitle)} | ${cell(e.hitUrl)} | ${STATUS_LABEL[e.status] || ''} | ${cell(e.author)} | ${cell(e.memo)} |`);
+    if (matches(e)) rows.push(`| ${depth} | ${TYPE[typeOf(e)].label} | \`${cell(e.keyword)}\` | ${cell(e.sourceText)} | ${cell(e.sourceUrl)} | ${cell(e.hitTitle)} | ${cell(e.hitUrl)} | ${STATUS_LABEL[e.status] || ''} | ${cell(e.author)} | ${cell(e.memo)} |`);
     childrenOf(e.id).forEach(k => walk(k, depth + 1));
   };
   roots().forEach(r => walk(r, 1));
@@ -1109,24 +1614,59 @@ $('btnLeave').addEventListener('click', leave);
 els.save.addEventListener('click', save);
 els.cancel.addEventListener('click', resetForm);
 els.parent.addEventListener('change', updateParentNote);
+els.type.addEventListener('change', () => { applyType(); checkDup(); });
+els.fSite.addEventListener('input', render);
 document.addEventListener('keydown', e => {
   if ((e.ctrlKey || e.metaKey) && e.key === 'Enter' && $('formCard').contains(document.activeElement)) save();
 });
 [els.q, els.fStatus].forEach(el => el.addEventListener('input', render));
-els.trail.addEventListener('click', e => {
+els.trail.addEventListener('click', async e => {
   const btn = e.target.closest('button[data-act]'); if (!btn) return;
   const id = btn.closest('.hop').dataset.id;
+  if (btn.dataset.act === 'copy') {
+    const en = byId(id); if (!en) return;
+    try { await navigator.clipboard.writeText(en.keyword); toast('コピーしました'); } catch { toast('コピーできませんでした'); }
+    return;
+  }
   ({ edit: startEdit, del: remove, chain: useAsSource })[btn.dataset.act](id);
 });
 els.keyword.addEventListener('input', checkDup);
 els.dup.addEventListener('click', e => { const b = e.target.closest('[data-jump]'); if (b) jumpTo(b.dataset.jump); });
-document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => {
-  document.querySelectorAll('.tab').forEach(x => x.classList.toggle('active', x === t));
-  $('tabRecords').hidden = t.dataset.tab !== 'records';
-  $('tabNotes').hidden = t.dataset.tab !== 'notes';
-  $('tabKeys').hidden = t.dataset.tab !== 'keys';
-  if (t.dataset.tab === 'notes') growAllNotes();
-}));
+function showTab(name) {
+  document.querySelectorAll('.tab').forEach(x => x.classList.toggle('active', x.dataset.tab === name));
+  $('tabRecords').hidden = name !== 'records';
+  $('tabNotes').hidden = name !== 'notes';
+  $('tabKeys').hidden = name !== 'keys';
+  $('tabMisses').hidden = name !== 'misses';
+  $('tabMap').hidden = name !== 'map';
+  if (name === 'notes') growAllNotes();
+}
+document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => showTab(t.dataset.tab)));
+mountQuickForms();
+$('btnMissSave').addEventListener('click', () => saveWordsBulk('miss'));
+$('btnCandSave').addEventListener('click', () => saveWordsBulk('cand'));
+els.mWords.addEventListener('keydown', e => { if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') saveWordsBulk(e.shiftKey ? 'miss' : 'cand'); });
+els.mq.addEventListener('input', renderWords);
+els.cq.addEventListener('input', renderWords);
+[els.cands, els.misses].forEach(ul => {
+  ul.addEventListener('click', async e => {
+    const b = e.target.closest('button[data-act]'); if (!b) return;
+    const li = b.closest('.miss'); const id = li.dataset.id, kind = li.dataset.kind;
+    const src = kind === 'cand' ? cands : misses; const w = src.find(x => x.id === id);
+    if (b.dataset.act === 'del') removeWord(kind, id);
+    else if (b.dataset.act === 'promote') promoteWord(w.word);
+    else if (b.dataset.act === 'tomiss') moveWord('cand', id, 'miss');
+    else if (b.dataset.act === 'tocand') moveWord('miss', id, 'cand');
+    else if (b.dataset.act === 'copy') { try { await navigator.clipboard.writeText(w.word); toast('コピーしました'); } catch { toast('コピーできませんでした'); } }
+  });
+  ul.addEventListener('focusout', e => { if (e.target.classList.contains('memo-in')) { const li = e.target.closest('.miss'); saveWordMemo(li.dataset.kind, li.dataset.id, e.target.value.trim()); } });
+  ul.addEventListener('keydown', e => { if (e.target.classList.contains('memo-in') && e.key === 'Enter') e.target.blur(); });
+});
+[els.mapQ, els.mapSite, els.mapSort].forEach(el => el.addEventListener('input', renderMap));
+els.mapBody.addEventListener('click', e => { if (e.target.closest('a')) return; const tr = e.target.closest('tr[data-jump]'); if (tr) jumpTo(tr.dataset.jump); });
+$('panelHead').addEventListener('click', () => { panelOpen = !panelOpen; localStorage.setItem('arg-panel-open', panelOpen ? '1' : '0'); renderPanel(); });
+els.pLeaves.addEventListener('click', e => { const li = e.target.closest('[data-jump]'); if (li) jumpTo(li.dataset.jump); });
+els.pCands.addEventListener('click', e => { const li = e.target.closest('[data-word]'); if (li) promoteWord(li.dataset.word); });
 els.keySave.addEventListener('click', saveKey);
 els.keyCancel.addEventListener('click', resetKeyForm);
 els.kq.addEventListener('input', renderKeys);
