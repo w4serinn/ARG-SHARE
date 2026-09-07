@@ -823,7 +823,7 @@ function renderNotes() {
       const st = noteState.get(n.id);
       const editing = document.activeElement === ta || (st && st.dirty);
       if (!editing && ta.value !== (n.text || '')) { ta.value = n.text || ''; autoGrow(ta); }
-      else if (!ta.style.height) autoGrow(ta);
+      else if (!ta.style.height || ta.dataset.needGrow) autoGrow(ta);
       renderNoteLinks(li, ta.value);
       li.classList.toggle('done', !!n.done);
       if (!n.done) li.classList.remove('open');
@@ -849,9 +849,12 @@ function renderNotes() {
   document.querySelectorAll('.note').forEach(li => { if (!seen.has(li.dataset.id)) li.remove(); });
 }
 function autoGrow(ta) {
+  if (ta.offsetParent === null) { ta.dataset.needGrow = '1'; return; } // 非表示中は測れないので後回し
   ta.style.height = 'auto';
   ta.style.height = Math.max(112, ta.scrollHeight) + 'px';
+  delete ta.dataset.needGrow;
 }
+function growAllNotes() { document.querySelectorAll('.note textarea').forEach(autoGrow); }
 function renderNoteLinks(li, text) {
   const box = li.querySelector('.links');
   const urls = [...new Set((text.match(URL_RE) || []))];
@@ -1108,6 +1111,7 @@ document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () =>
   $('tabRecords').hidden = t.dataset.tab !== 'records';
   $('tabNotes').hidden = t.dataset.tab !== 'notes';
   $('tabKeys').hidden = t.dataset.tab !== 'keys';
+  if (t.dataset.tab === 'notes') growAllNotes();
 }));
 els.keySave.addEventListener('click', saveKey);
 els.keyCancel.addEventListener('click', resetKeyForm);
@@ -1130,8 +1134,8 @@ $('btnAddNote').addEventListener('click', addNote);
   if (b.dataset.act === 'delnote') removeNote(id);
   if (b.dataset.act === 'done') setDone(id, !li.classList.contains('done'));
 }));
-$('btnToggleDone').addEventListener('click', () => { showDone = !showDone; renderNotes(); els.notesDone.querySelectorAll('textarea').forEach(autoGrow); });
-window.addEventListener('resize', () => document.querySelectorAll('.note textarea').forEach(autoGrow));
+$('btnToggleDone').addEventListener('click', () => { showDone = !showDone; renderNotes(); growAllNotes(); });
+window.addEventListener('resize', growAllNotes);
 window.addEventListener('beforeunload', () => { noteState.forEach((st, id) => { if (st.dirty) { const ta = document.querySelector(`.note[data-id="${id}"] textarea`); if (ta) flushNoteSave(id, ta); } }); });
 $('btnCopyMd').addEventListener('click', copyMd);
 $('btnExport').addEventListener('click', exportJson);
