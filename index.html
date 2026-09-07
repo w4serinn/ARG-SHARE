@@ -398,6 +398,31 @@
   .edge.guess { stroke: #B7B7B7; stroke-dasharray: 5 4; }
   .edge.implicit { stroke-dasharray: 3 4; }
   .edge-label { font-family: var(--type); font-size: 9px; fill: var(--manila-deep); pointer-events: none; }
+
+  /* ---------- 広い画面: 左に書類、右に記録 ---------- */
+  .wrap { max-width: 1680px; }
+  @media (min-width: 1200px) {
+    #tabRecords { display: grid; grid-template-columns: minmax(380px, 440px) 1fr; gap: 24px; align-items: start; }
+    .desk-left { position: sticky; top: 12px; max-height: calc(100vh - 24px); overflow-y: auto; padding-right: 4px; scrollbar-width: thin; }
+    .desk-left .card { margin-bottom: 18px; }
+    .desk-left .grid { grid-template-columns: 1fr; gap: 10px; }
+    .desk-left .grid > div:empty { display: none; }
+    .desk-left .quick-miss { margin: -4px 0 18px; }
+    .desk-left .panel { margin-bottom: 0; }
+    .desk-left .panel-body { grid-template-columns: 1fr; }
+    .desk-left .panel-col + .panel-col { border-left: none; border-top: 1px solid var(--manila-line); }
+    .desk-right .filters { margin-top: 2px; }
+  }
+  @media (min-width: 1500px) {
+    #tabRecords { grid-template-columns: 460px 1fr; }
+    .desk-left .grid { grid-template-columns: 1fr 1fr; }
+    .desk-left .grid .full { grid-column: 1 / -1; }
+  }
+  @media (min-width: 1200px) {
+    .notes { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
+    .misses { grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
+    .board { height: calc(100vh - 260px); min-height: 520px; }
+  }
 </style>
 </head>
 <body>
@@ -454,6 +479,7 @@
   </div>
 
   <div id="tabRecords">
+  <div class="desk-left">
   <section class="card" id="formCard">
     <h2 id="formTitle">NEW RECORD — 記録を追加</h2>
     <div class="grid">
@@ -539,6 +565,8 @@
     </div>
   </div>
 
+  </div>
+  <div class="desk-right">
   <div class="filters">
     <input type="text" id="q" placeholder="記録を探す">
     <select id="fStatus">
@@ -555,6 +583,7 @@
   <div class="empty" id="empty" hidden>
     <strong>まだ手がかりがありません。</strong><br>
     まず経路の種類を「起点」にして、ARGの入口サイトを登録してください。
+  </div>
   </div>
   </div>
 
