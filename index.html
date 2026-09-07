@@ -423,6 +423,23 @@
     .misses { grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
     .board { height: calc(100vh - 260px); min-height: 520px; }
   }
+
+  /* ---------- ハブ（切り離し）と折りたたみ ---------- */
+  .stub { position: relative; padding: 6px 0 6px 0; font-size: 13px; color: var(--ink-soft); }
+  .stub a { color: var(--thread); font-family: var(--type); font-weight: 700; text-decoration: none; }
+  .stub a:hover { text-decoration: underline; }
+  .children > .branch > .stub::before { content: ""; position: absolute; left: -18px; top: 16px; width: 14px; height: 2px; background: var(--thread); }
+  .children > .branch > .stub::after { content: ""; position: absolute; left: -3px; top: 13px; width: 8px; height: 8px; border-radius: 50%; background: var(--thread); box-shadow: 0 0 0 2px var(--manila), 0 0 0 3px var(--thread); }
+  .children > .branch.stub-branch:last-child::before { height: 17px; }
+  .entry.hub-card { border-left: 4px solid var(--ok); }
+  .entry-head .from { color: var(--ink-soft); }
+  .entry-head .from a { color: var(--thread); font-weight: 700; text-decoration: none; }
+  .fold { font-family: var(--type); font-weight: 700; font-size: 11px; color: var(--thread); background: none; border: 1px solid var(--thread); border-radius: 2px; padding: 0 6px; cursor: pointer; }
+  .fold:hover { background: rgba(178,56,46,.08); }
+  .folded-note { font-size: 12px; color: var(--ink-soft); padding: 4px 0 8px; }
+  .children > .branch > .folded-note { position: relative; }
+  .children > .branch > .folded-note::before { content: ""; position: absolute; left: -18px; top: 12px; width: 14px; height: 2px; background: var(--thread); }
+  @media (max-width: 720px) { .children > .branch > .stub::before, .children > .branch > .folded-note::before { left: -14px; width: 10px; } }
 </style>
 </head>
 <body>
@@ -794,6 +811,8 @@ function computeParents() {
   parentOf = m;
 }
 const childrenOf = id => entries.filter(e => parentOf.get(e.id) === id).sort((a, b) => (a.createdAt || '').localeCompare(b.createdAt || ''));
+const treeChildrenOf = id => childrenOf(id).filter(e => !e.hub);      // カード内に描く子（ハブは別カード）
+const hubChildrenOf = id => childrenOf(id).filter(e => !!e.hub);
 const descendants = id => childrenOf(id).flatMap(c => [c, ...descendants(c.id)]);
 const labelOf = e => (e.hitTitle || e.hitUrl || `「${e.keyword}」のヒットページ`);
 let toastTimer;
@@ -1012,7 +1031,8 @@ function checkDup() {
 const candsOf = kw => { const k = norm(kw); return k ? cands.filter(c => norm(c.word) === k) : []; };
 function jumpTo(id) {
   showTab('records');
-  els.q.value = ''; els.fStatus.value = ''; render();
+  { let cur = id, g = 0, changed = false; while (parentOf.has(cur) && g++ < 1000) { cur = parentOf.get(cur); if (folded.has(cur)) { folded.delete(cur); changed = true; } } if (changed) saveFolded(); }
+  els.q.value = ''; els.fStatus.value = ''; els.fSite.value = ''; render();
   const el = els.trail.querySelector(`.hop[data-id="${id}"]`); if (!el) return;
   el.scrollIntoView({ behavior: 'smooth', block: 'center' });
   el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash');
@@ -1111,6 +1131,8 @@ function hopHtml(e, parent, matched, sharedSource) {
         ${e.author ? `<span class="who">by ${esc(e.author)}</span>` : ''}
         <span>${fmtDate(e.createdAt)}</span>
         <div class="actions">
+          ${(treeChildrenOf(e.id).length || hubChildrenOf(e.id).length) ? `<button class="fold" type="button" data-act="fold" title="${folded.has(e.id) ? '開く' : '畳む'}">${folded.has(e.id) ? '▸ ' + subtreeCount(e.id) : '▾'}</button>` : ''}
+          ${parent ? `<button class="btn small ghost" type="button" data-act="hub" title="このページ以下を独立したカードにする">⇱ 入口に切り離す</button>` : e.hub ? `<button class="btn small ghost" type="button" data-act="unhub" title="元の糸のカードに戻す">⇲ 元の糸に戻す</button>` : ''}
           <button class="btn small ghost" data-act="chain" title="この到達ページから続く記録を作る">↳ 次を辿る</button>
           <button class="btn small ghost" data-act="edit">編集</button>
           <button class="btn small ghost danger" data-act="del">削除</button>
@@ -1118,15 +1140,20 @@ function hopHtml(e, parent, matched, sharedSource) {
       </div>
     </div>`;
 }
+function subtreeCount(id) { return treeChildrenOf(id).reduce((a, k) => a + 1 + subtreeCount(k.id), 0); }
 function treeHtml(e, parent, sharedSource) {
-  const kids = childrenOf(e.id);
-  return `<div class="branch">` + hopHtml(e, parent, matches(e), sharedSource) +
-    (kids.length ? `<div class="children">${kids.map(k => treeHtml(k, e)).join('')}</div>` : '') + `</div>`;
+  const kids = treeChildrenOf(e.id), hubs = hubChildrenOf(e.id);
+  const isFolded = folded.has(e.id) && (kids.length || hubs.length);
+  const stubs = hubs.map(h => `<div class="branch stub-branch"><div class="stub">→ 別カードへ切り離し: <a href="#" data-jump="${h.id}">${esc(h.keyword)}</a> <span>（${esc(h.hitTitle || h.hitUrl || '')}）</span></div></div>`).join('');
+  const body = isFolded
+    ? `<div class="children"><div class="branch"><div class="folded-note">…${subtreeCount(e.id)} 件を畳んでいます${hubs.length ? `（別カードへの切り離し ${hubs.length} 件）` : ''}</div></div></div>`
+    : (kids.length || hubs.length) ? `<div class="children">${kids.map(k => treeHtml(k, e)).join('')}${stubs}</div>` : '';
+  return `<div class="branch">` + hopHtml(e, parent, matches(e), sharedSource) + body + `</div>`;
 }
 function rootOf(e) { let cur = e, g = 0; while (parentOf.has(cur.id) && g++ < 1000) cur = byId(parentOf.get(cur.id)) || cur; return cur; }
 function siteNameOf(e) { const r = rootOf(e); return typeOf(r) === 'root' ? (r.keyword || r.hitTitle || r.hitUrl) : ''; }
 function roots() {
-  return entries.filter(e => !parentOf.has(e.id))
+  return entries.filter(e => !parentOf.has(e.id) || e.hub)
     .sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
 }
 function sortedNotes() {
@@ -1619,6 +1646,8 @@ function renderBoard(pages, list) {
 // ---------- 残量パネル ----------
 let panelOpen = localStorage.getItem('arg-panel-open') !== '0';
 let showDismissed = false;
+const folded = new Set(JSON.parse(localStorage.getItem('arg-folded') || '[]'));
+function saveFolded() { localStorage.setItem('arg-folded', JSON.stringify([...folded])); }
 function leavesAll() {
   return entries.filter(e => (e.hitUrl || e.hitTitle) && childrenOf(e.id).length === 0)
     .sort((a, b) => (a.updatedAt || a.createdAt || '').localeCompare(b.updatedAt || b.createdAt || ''));
@@ -1738,7 +1767,7 @@ function render() {
 
   const rs = roots();
   // 起点を「同じ出典」でまとめる（URLがあればURL、なければ出典テキストで判定）
-  const sourceKey = e => norm(e.sourceUrl) ? 'u:' + norm(e.sourceUrl) : norm(e.sourceText) ? 't:' + norm(e.sourceText) : 'id:' + e.id;
+  const sourceKey = e => e.hub ? 'hub:' + e.id : norm(e.sourceUrl) ? 'u:' + norm(e.sourceUrl) : norm(e.sourceText) ? 't:' + norm(e.sourceText) : 'id:' + e.id;
   const groups = [];
   const byKey = new Map();
   rs.forEach(r => {
@@ -1753,7 +1782,7 @@ function render() {
   els.count.textContent = entries.length ? `${matchedCount} / ${entries.length} 件 — ${threadCount} 本の糸 / ${visible.length} 枚` : '';
   els.empty.hidden = entries.length > 0;
   els.trail.innerHTML = visible.map(g => {
-    const n = g.roots.reduce((a, r) => a + 1 + descendants(r.id).length, 0);
+    const n = g.roots.reduce((a, r) => a + 1 + subtreeCount(r.id), 0);
     const no = String(groups.length - groups.indexOf(g)).padStart(3, '0');
     const shared = g.roots.length > 1;
     const first = g.roots[0];
@@ -1761,11 +1790,13 @@ function render() {
       : n > 1 ? `${n} 段の連鎖` : `<span style="color:var(--ink-soft)">単独</span>`;
     const isRootCard = typeOf(first) === 'root';
     const site = siteNameOf(first);
+    const hubParent = first.hub ? byId(parentOf.get(first.id)) : null;
     return `
-    <li class="entry ${isRootCard ? 'root-card' : ''}">
+    <li class="entry ${isRootCard ? 'root-card' : ''} ${first.hub ? 'hub-card' : ''}">
       <div class="entry-head">
         <span class="caseno">No.${no}</span>
         ${isRootCard ? `<span class="site">起点: ${esc(site)}</span>` : site ? `<span class="site">${esc(site)} の糸</span>` : ''}
+        ${hubParent ? `<span class="from">⇱ <a href="#" data-jump="${hubParent.id}">${esc(hubParent.hitTitle || hubParent.hitUrl || hubParent.keyword)}</a> から切り離し</span>` : first.hub ? '<span class="from">⇱ 切り離し（元の記録なし）</span>' : ''}
         <span class="chainlen">${label}</span>
       </div>
       ${shared ? `<div class="shared-source"><div class="lbl">出典</div><div>${linkOrText(first.sourceText, first.sourceUrl)}</div></div>` : ''}
@@ -1851,6 +1882,8 @@ document.addEventListener('keydown', e => {
 });
 [els.q, els.fStatus].forEach(el => el.addEventListener('input', render));
 els.trail.addEventListener('click', async e => {
+  const j = e.target.closest('a[data-jump]');
+  if (j) { e.preventDefault(); jumpTo(j.dataset.jump); return; }
   const r = e.target.closest('[data-reveal]');
   if (r && !r.classList.contains('revealed')) { e.preventDefault(); revealed.add(r.dataset.reveal); render(); return; }
   const btn = e.target.closest('button[data-act]'); if (!btn) return;
@@ -1858,6 +1891,13 @@ els.trail.addEventListener('click', async e => {
   if (btn.dataset.act === 'copy') {
     const en = byId(id); if (!en) return;
     try { await navigator.clipboard.writeText(en.keyword); toast('コピーしました'); } catch { toast('コピーできませんでした'); }
+    return;
+  }
+  if (btn.dataset.act === 'fold') { if (folded.has(id)) folded.delete(id); else folded.add(id); saveFolded(); render(); return; }
+  if (btn.dataset.act === 'hub' || btn.dataset.act === 'unhub') {
+    const hub = btn.dataset.act === 'hub';
+    try { await updateDoc(doc(entriesRef(), id), { hub, updatedAt: new Date().toISOString(), updatedBy: nickname }); toast(hub ? '独立したカードに切り離しました' : '元の糸に戻しました'); }
+    catch (err) { console.error(err); toast('更新できませんでした: ' + (err.code || err.message)); }
     return;
   }
   ({ edit: startEdit, del: remove, chain: useAsSource })[btn.dataset.act](id);
