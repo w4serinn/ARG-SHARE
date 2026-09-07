@@ -274,6 +274,18 @@
   .note .links:empty { display: none; }
   .note .links a { font-family: var(--type); font-size: 11px; background: #F7EFD9; border: 1px solid var(--manila-line); padding: 1px 8px; border-radius: 2px; text-decoration: none; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .note .links a:hover { border-color: var(--thread); }
+
+  /* ---------- 黒塗り ---------- */
+  .redact { cursor: pointer; position: relative; }
+  .redact:not(.revealed) { background: var(--ink) !important; color: transparent !important; border-color: var(--ink) !important; text-decoration: none !important; user-select: none; }
+  .redact:not(.revealed) * { color: transparent !important; }
+  .redact:not(.revealed)::after {
+    content: "クリックで開示"; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    color: var(--manila); font-family: var(--type); font-size: 11px; letter-spacing: .1em; pointer-events: none;
+  }
+  .redact.revealed { cursor: default; }
+  .key .how.redact { padding: 4px 8px; border-radius: 2px; min-height: 28px; }
+  .key .pw { min-height: 30px; }
 </style>
 </head>
 <body>
@@ -446,10 +458,11 @@
     </section>
     <div class="filters">
       <input type="text" id="kq" placeholder="鍵束を探す">
+      <button class="btn small" id="btnHideAll" type="button">すべて黒塗りに戻す</button>
       <span class="count" id="kCount"></span>
     </div>
     <ul class="keys" id="keys"></ul>
-    <div class="empty" id="keysEmpty" hidden><strong>まだ鍵がありません。</strong><br>見つけたパスワードと、その入手経路を上の書類から記録してください。</div>
+    <div class="empty" id="keysEmpty" hidden><strong>まだ鍵がありません。</strong><br>見つけたパスワードと、その入手経路を上の書類から記録してください。パスワードと入手経路は黒塗りで表示され、各自がクリックしたときだけ開示されます。</div>
   </div>
   </div>
 </div>
@@ -499,6 +512,7 @@ let editingId = null;
 let unsubscribe = null, unsubNotes = null;
 let notes = [];
 let keys = [], editingKeyId = null, unsubKeys = null;
+const revealed = new Set(); // 'pw:id' / 'how:id' — 自分の画面でだけ開示
 const noteState = new Map(); // id -> { dirty, timer }
 let showDone = false, reorderPending = false;
 
@@ -983,9 +997,9 @@ function renderKeys() {
     <li class="key" data-id="${k.id}">
       <div class="row">
         <div class="step"><div class="lbl">PASSWORD</div>
-          <div class="pw"><code>${esc(k.pw)}</code><button class="btn small ghost" type="button" data-act="copy" title="コピー">コピー</button></div></div>
+          <div class="pw"><code class="redact ${revealed.has('pw:' + k.id) ? 'revealed' : ''}" data-reveal="pw:${k.id}">${esc(k.pw)}</code>${revealed.has('pw:' + k.id) ? `<button class="btn small ghost" type="button" data-act="copy" title="コピー">コピー</button>` : ''}</div></div>
         <div class="step"><div class="lbl">使う場所</div>${linkOrText(k.target, k.targetUrl)}</div>
-        <div class="step"><div class="lbl">入手経路</div><div class="how">${k.how ? linkify(k.how) : '<span class="empty-val">未記入</span>'}</div></div>
+        <div class="step"><div class="lbl">入手経路</div><div class="how redact ${revealed.has('how:' + k.id) ? 'revealed' : ''}" data-reveal="how:${k.id}">${k.how ? linkify(k.how) : '<span class="empty-val">未記入</span>'}</div></div>
       </div>
       <div class="hop-meta">
         <span class="stamp ${k.status === 'ok' ? 'hit' : k.status === 'ng' ? 'miss' : 'open'}">${KEY_STATUS[k.status] || '未確認'}</span>
@@ -1116,8 +1130,11 @@ document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () =>
 els.keySave.addEventListener('click', saveKey);
 els.keyCancel.addEventListener('click', resetKeyForm);
 els.kq.addEventListener('input', renderKeys);
+$('btnHideAll').addEventListener('click', () => { revealed.clear(); renderKeys(); });
 $('tabKeys').addEventListener('keydown', e => { if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') saveKey(); });
 els.keys.addEventListener('click', async e => {
+  const r = e.target.closest('[data-reveal]');
+  if (r && !r.classList.contains('revealed')) { e.preventDefault(); revealed.add(r.dataset.reveal); renderKeys(); return; }
   const b = e.target.closest('button[data-act]'); if (!b) return;
   const li = b.closest('.key'); const id = li.dataset.id;
   if (b.dataset.act === 'edit') startEditKey(id);
